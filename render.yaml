@@ -1,0 +1,33 @@
+# Render Blueprint for the StudyBridge backend.
+# In Render: New + > Blueprint > pick this repo. It reads this file and creates the service.
+# Values marked "sync: false" are NOT in the repo — set them in the Render dashboard after creation.
+services:
+  - type: web
+    name: studybridge-backend
+    runtime: docker
+    plan: free
+    dockerfilePath: ./backend/Dockerfile
+    dockerContext: ./backend
+    autoDeploy: true
+    envVars:
+      - key: SPRING_PROFILES_ACTIVE
+        value: prod
+      - key: JPA_DDL_AUTO
+        value: update
+      - key: TRANSLATION_PROVIDER
+        value: deepl
+      # Neon connection (see DEPLOYMENT.md for how to derive these three):
+      - key: DATABASE_URL
+        sync: false
+      - key: DATABASE_USERNAME
+        sync: false
+      - key: DATABASE_PASSWORD
+        sync: false
+      # Secrets:
+      - key: JWT_SECRET
+        sync: false
+      - key: DEEPL_API_KEY
+        sync: false
+      # Comma-separated allowed origins = your Vercel frontend URL (set after the frontend is live):
+      - key: CORS_ORIGINS
+        sync: false

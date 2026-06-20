@@ -1,0 +1,20 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: studybridge-postgres
+    environment:
+      POSTGRES_DB: studybridge
+      POSTGRES_USER: studybridge
+      POSTGRES_PASSWORD: studybridge
+    ports:
+      - "5432:5432"
+    volumes:
+      - studybridge-postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U studybridge -d studybridge"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  studybridge-postgres-data:
