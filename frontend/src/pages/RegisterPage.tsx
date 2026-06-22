@@ -192,7 +192,7 @@ export function RegisterPage() {
                       value={name}
                       onChange={(e) => setName(e.target.value)}
                       className={inputClass}
-                      placeholder="Youssef Mazen"
+                      placeholder="Alex Morgan"
                     />
                   </div>
                 </div>
