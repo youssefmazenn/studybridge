@@ -66,7 +66,7 @@ export function RegisterPage() {
   }
 
   return (
-    <div className="relative min-h-screen overflow-hidden bg-[#10131f] text-white">
+    <div className="auth-page relative min-h-screen overflow-hidden bg-[#10131f] text-white">
       <div
         className="absolute inset-0 bg-cover bg-center opacity-25"
         style={{ backgroundImage: `url(${heroImage})` }}
