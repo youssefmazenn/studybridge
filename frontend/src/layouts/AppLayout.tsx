@@ -11,6 +11,7 @@ import {
   X,
 } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
+import { ThemeToggle } from '../components/ThemeToggle'
 
 const navItems = [
   { to: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
@@ -73,6 +74,7 @@ export function AppLayout() {
             {user.name}
           </p>
         ) : null}
+        <ThemeToggle variant="inline" className="mb-1 w-full" />
         <button
           type="button"
           onClick={handleSignOut}
@@ -127,6 +129,7 @@ export function AppLayout() {
             <Menu className="h-5 w-5" />
           </button>
           <span className="text-sm font-semibold text-foreground">StudyBridge</span>
+          <ThemeToggle className="ml-auto h-9 w-9" />
         </header>
 
         <main className="min-w-0 flex-1 overflow-auto">

@@ -10,6 +10,7 @@ import {
   Sparkles,
 } from 'lucide-react'
 import { Link } from 'react-router-dom'
+import { ThemeToggle } from '../components/ThemeToggle'
 import heroImage from '../assets/hero.png'
 
 const features = [
@@ -64,6 +65,7 @@ export function LandingPage() {
             <span className="text-lg font-semibold">StudyBridge</span>
           </Link>
           <div className="flex items-center gap-2">
+            <ThemeToggle className="theme-hero-toggle border-white/20 bg-white/10 text-white hover:bg-white/15 hover:text-white" />
             <Link
               to="/login"
               className="inline-flex items-center rounded-lg px-4 py-2 text-sm font-semibold text-slate-200 transition hover:bg-white/10 hover:text-white"

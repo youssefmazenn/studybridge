@@ -15,6 +15,7 @@ import { useAuth } from '../context/AuthContext'
 import { getErrorMessage } from '../api/errors'
 import { ErrorAlert } from '../components/ErrorAlert'
 import { Spinner } from '../components/Spinner'
+import { ThemeToggle } from '../components/ThemeToggle'
 import heroImage from '../assets/hero.png'
 
 const benefits = [
@@ -73,14 +74,17 @@ export function RegisterPage() {
 
       <div className="relative z-10 grid min-h-screen lg:grid-cols-[0.96fr_1.04fr]">
         <section className="hidden min-h-screen flex-col justify-between px-10 py-8 lg:flex">
-          <Link to="/" className="flex w-fit items-center gap-3">
-            <img
-              src="/logo.png"
-              alt="StudyBridge logo"
-              className="h-10 w-10 rounded-lg object-cover shadow-lg shadow-cyan-950/30"
-            />
-            <span className="text-lg font-semibold">StudyBridge</span>
-          </Link>
+          <div className="flex items-center justify-between">
+            <Link to="/" className="flex w-fit items-center gap-3">
+              <img
+                src="/logo.png"
+                alt="StudyBridge logo"
+                className="h-10 w-10 rounded-lg object-cover shadow-lg shadow-cyan-950/30"
+              />
+              <span className="text-lg font-semibold">StudyBridge</span>
+            </Link>
+            <ThemeToggle className="theme-hero-toggle border-white/20 bg-white/10 text-white hover:bg-white/15 hover:text-white" />
+          </div>
 
           <div className="landing-fade-up max-w-2xl pb-10">
             <div className="inline-flex items-center gap-2 rounded-lg border border-white/15 bg-white/10 px-3 py-2 text-sm font-semibold text-violet-200 backdrop-blur-md">
@@ -129,6 +133,7 @@ export function RegisterPage() {
               <ArrowLeft className="h-4 w-4" />
               StudyBridge
             </Link>
+            <ThemeToggle className="theme-hero-toggle mb-4 border-white/20 bg-white/10 text-white hover:bg-white/15 hover:text-white lg:hidden" />
 
             <div className="mb-8 flex items-center gap-3 lg:hidden">
               <img
