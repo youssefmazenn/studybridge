@@ -48,7 +48,7 @@ export function LandingPage() {
 
   return (
     <div className="min-h-screen bg-[#0d0f1a] text-foreground">
-      <section className="relative isolate overflow-hidden bg-[#10131f] text-white">
+      <section className="landing-hero relative isolate overflow-hidden bg-[#10131f] text-white">
         <div
           className="absolute inset-0 bg-cover bg-center opacity-35"
           style={{ backgroundImage: `url(${heroImage})` }}
@@ -87,11 +87,11 @@ export function LandingPage() {
 
         <div className="relative z-10 mx-auto grid min-h-[calc(100svh-72px)] max-w-7xl items-center gap-12 px-5 pb-20 pt-10 md:grid-cols-[1fr_0.92fr] md:px-8 md:pb-24">
           <div className="landing-fade-up max-w-3xl">
-            <div className="inline-flex items-center gap-2 rounded-lg border border-white/15 bg-white/10 px-3 py-2 text-sm font-medium text-cyan-100 shadow-xl shadow-cyan-950/20 backdrop-blur-md">
+            <div className="landing-hero-badge inline-flex items-center gap-2 rounded-lg border border-white/15 bg-white/10 px-3 py-2 text-sm font-medium text-cyan-100 shadow-xl shadow-cyan-950/20 backdrop-blur-md">
               <Sparkles className="h-4 w-4 text-amber-200" />
               {t('landing.badge')}
             </div>
-            <h1 className="mt-7 max-w-3xl text-5xl font-semibold leading-[1.02] text-white md:text-7xl">
+            <h1 className="landing-hero-title mt-7 max-w-3xl text-5xl font-semibold leading-[1.02] text-white md:text-7xl">
               StudyBridge
             </h1>
             <p className="mt-6 max-w-2xl text-lg leading-8 text-slate-200 md:text-xl">
@@ -107,7 +107,7 @@ export function LandingPage() {
               </Link>
               <Link
                 to="/login"
-                className="inline-flex items-center justify-center rounded-lg border border-white/20 bg-white/10 px-6 py-3.5 text-sm font-bold text-white backdrop-blur-md transition hover:-translate-y-0.5 hover:bg-white/15"
+                className="landing-secondary-cta inline-flex items-center justify-center rounded-lg border border-white/20 bg-white/10 px-6 py-3.5 text-sm font-bold text-white backdrop-blur-md transition hover:-translate-y-0.5 hover:bg-white/15"
               >
                 {t('landing.openAccount')}
               </Link>
@@ -115,15 +115,15 @@ export function LandingPage() {
 
             <div className="mt-10 grid max-w-xl grid-cols-3 gap-3 text-sm text-slate-300">
               <div>
-                <p className="text-2xl font-semibold text-white">4</p>
+                <p className="landing-stat-value text-2xl font-semibold text-white">4</p>
                 <p className="mt-1">{t('landing.coreModules')}</p>
               </div>
               <div>
-                <p className="text-2xl font-semibold text-white">24h</p>
+                <p className="landing-stat-value text-2xl font-semibold text-white">24h</p>
                 <p className="mt-1">{t('landing.jwtSessions')}</p>
               </div>
               <div>
-                <p className="text-2xl font-semibold text-white">SMTP</p>
+                <p className="landing-stat-value text-2xl font-semibold text-white">SMTP</p>
                 <p className="mt-1">{t('landing.reminders')}</p>
               </div>
             </div>
@@ -195,7 +195,7 @@ export function LandingPage() {
               </div>
             </div>
 
-            <div className="landing-float-alt absolute bottom-4 right-0 w-[68%] rounded-2xl border border-white/15 bg-white/8 p-5 text-white shadow-2xl shadow-black/50 backdrop-blur-xl">
+            <div className="landing-calendar-card landing-float-alt absolute bottom-4 right-0 w-[68%] rounded-2xl border border-white/15 bg-white/8 p-5 text-white shadow-2xl shadow-black/50 backdrop-blur-xl">
               <div className="mb-4 flex items-center justify-between">
                 <div>
                   <p className="text-xs font-semibold uppercase text-slate-400">

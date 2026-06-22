@@ -278,3 +278,28 @@ textarea {
 :root[data-theme='light'] .auth-page .text-violet-200 {
   color: #6d28d9;
 }
+
+:root[data-theme='light'] .landing-hero {
+  color: var(--sb-foreground);
+}
+
+:root[data-theme='light'] .landing-hero-title,
+:root[data-theme='light'] .landing-secondary-cta,
+:root[data-theme='light'] .landing-secondary-cta:hover,
+:root[data-theme='light'] .landing-stat-value,
+:root[data-theme='light'] .landing-calendar-card {
+  color: var(--sb-foreground);
+}
+
+:root[data-theme='light'] .landing-hero-badge,
+:root[data-theme='light'] .landing-hero .text-cyan-100 {
+  color: #0e7490;
+}
+
+:root[data-theme='light'] .landing-hero .text-violet-200 {
+  color: #7c3aed;
+}
+
+:root[data-theme='light'] .landing-hero .text-emerald-200 {
+  color: #059669;
+}
