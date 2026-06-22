@@ -1,5 +1,6 @@
 import { type FormEvent, useEffect, useState } from 'react'
 import { X } from 'lucide-react'
+import { useLanguage } from '../context/LanguageContext'
 import type { Assignment, AssignmentInput } from '../types/assignment'
 import type { Course } from '../types/course'
 
@@ -31,6 +32,7 @@ export function AssignmentFormModal({
   onClose,
   onSubmit,
 }: AssignmentFormModalProps) {
+  const { t } = useLanguage()
   const [form, setForm] = useState(emptyForm)
 
   useEffect(() => {
@@ -84,7 +86,7 @@ export function AssignmentFormModal({
             type="button"
             onClick={onClose}
             className="rounded-lg p-1.5 text-muted-foreground hover:bg-accent"
-            aria-label="Close"
+            aria-label={t('common.close')}
           >
             <X className="h-5 w-5" />
           </button>
@@ -93,13 +95,13 @@ export function AssignmentFormModal({
         <form onSubmit={(e) => void handleSubmit(e)} className="space-y-4 px-6 py-5">
           {courses.length === 0 ? (
             <p className="text-sm text-destructive">
-              Add a course first before creating assignments.
+              {t('assignments.addCourseFirst')}
             </p>
           ) : (
             <>
               <div>
                 <label htmlFor="assignment-course" className="mb-1.5 block text-sm font-medium text-slate-300">
-                  Course
+                  {t('common.course')}
                 </label>
                 <select
                   id="assignment-course"
@@ -109,7 +111,7 @@ export function AssignmentFormModal({
                   className={inputClass}
                 >
                   <option value="" disabled>
-                    Select a course
+                    {t('common.selectCourse')}
                   </option>
                   {courses.map((c) => (
                     <option key={c.id} value={c.id}>
@@ -120,7 +122,7 @@ export function AssignmentFormModal({
               </div>
               <div>
                 <label htmlFor="assignment-title" className="mb-1.5 block text-sm font-medium text-slate-300">
-                  Title
+                  {t('assignments.titleField')}
                 </label>
                 <input
                   id="assignment-title"
@@ -136,7 +138,10 @@ export function AssignmentFormModal({
                   htmlFor="assignment-description"
                   className="mb-1.5 block text-sm font-medium text-slate-300"
                 >
-                  Description <span className="font-normal text-muted-foreground">(optional)</span>
+                  {t('assignments.descriptionField')}{' '}
+                  <span className="font-normal text-muted-foreground">
+                    ({t('common.optional')})
+                  </span>
                 </label>
                 <textarea
                   id="assignment-description"
@@ -149,7 +154,7 @@ export function AssignmentFormModal({
               </div>
               <div>
                 <label htmlFor="assignment-due" className="mb-1.5 block text-sm font-medium text-slate-300">
-                  Due date
+                  {t('assignments.dueDate')}
                 </label>
                 <input
                   id="assignment-due"
@@ -170,14 +175,14 @@ export function AssignmentFormModal({
               disabled={submitting}
               className="rounded-lg border border-white/10 px-4 py-2 text-sm font-medium text-muted-foreground hover:bg-accent disabled:opacity-50"
             >
-              Cancel
+              {t('common.cancel')}
             </button>
             <button
               type="submit"
               disabled={submitting || courses.length === 0}
               className="rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:opacity-90 disabled:opacity-50"
             >
-              {submitting ? 'Saving…' : submitLabel}
+              {submitting ? t('courses.saving') : submitLabel}
             </button>
           </div>
         </form>

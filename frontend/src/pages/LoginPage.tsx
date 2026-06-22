@@ -9,23 +9,20 @@ import {
 } from 'lucide-react'
 import { Link, useNavigate, useLocation } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
+import { useLanguage } from '../context/LanguageContext'
 import { getErrorMessage } from '../api/errors'
 import { ErrorAlert } from '../components/ErrorAlert'
+import { LanguageSelect } from '../components/LanguageSelect'
 import { Spinner } from '../components/Spinner'
 import { ThemeToggle } from '../components/ThemeToggle'
 import heroImage from '../assets/hero.png'
-
-const activity = [
-  ['Translation saved', 'Database lecture notes'],
-  ['Reminder queued', 'Milestone report at 18:00'],
-  ['Calendar synced', '3 assignments this week'],
-]
 
 const inputClass =
   'w-full rounded-lg border border-white/10 bg-white/5 py-3 pl-10 pr-3 text-foreground outline-none ring-cyan-500/25 transition focus:border-primary focus:ring-2 placeholder:text-muted-foreground'
 
 export function LoginPage() {
   const { login, isAuthenticated } = useAuth()
+  const { t } = useLanguage()
   const navigate = useNavigate()
   const location = useLocation()
   const from = (location.state as { from?: { pathname: string } } | null)?.from
@@ -38,6 +35,11 @@ export function LoginPage() {
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const [submitting, setSubmitting] = useState(false)
+  const activity = [
+    [t('auth.activityTranslation'), t('auth.activityTranslationMeta')],
+    [t('auth.activityReminder'), t('auth.activityReminderMeta')],
+    [t('auth.activityCalendar'), t('auth.activityCalendarMeta')],
+  ]
 
   useEffect(() => {
     if (isAuthenticated) {
@@ -79,24 +81,26 @@ export function LoginPage() {
               />
               <span className="text-lg font-semibold">StudyBridge</span>
             </Link>
-            <ThemeToggle className="theme-hero-toggle border-white/20 bg-white/10 text-white hover:bg-white/15 hover:text-white" />
+            <div className="flex items-center gap-2">
+              <LanguageSelect compact className="theme-hero-toggle border-white/20 bg-white/10 text-white hover:bg-white/15 hover:text-white" />
+              <ThemeToggle className="theme-hero-toggle border-white/20 bg-white/10 text-white hover:bg-white/15 hover:text-white" />
+            </div>
           </div>
 
           <div className="landing-fade-up max-w-2xl pb-10">
             <p className="text-sm font-bold uppercase text-cyan-300">
-              Welcome back
+              {t('auth.welcomeBack')}
             </p>
             <h1 className="mt-5 text-5xl font-semibold leading-tight">
-              Return to your semester command center.
+              {t('auth.returnHeadline')}
             </h1>
             <p className="mt-5 max-w-xl text-lg leading-8 text-slate-300">
-              Pick up your documents, translations, reminders, and course progress
-              exactly where you left them.
+              {t('auth.returnCopy')}
             </p>
 
             <div className="mt-9 w-full max-w-md rounded-2xl border border-white/15 bg-white/10 p-5 shadow-2xl shadow-black/30 backdrop-blur-xl">
               <div className="mb-4 flex items-center justify-between">
-                <p className="text-sm font-semibold">Workspace pulse</p>
+                <p className="text-sm font-semibold">{t('auth.workspacePulse')}</p>
                 <CalendarDays className="h-4 w-4 text-cyan-300" />
               </div>
               <div className="space-y-3">
@@ -126,7 +130,10 @@ export function LoginPage() {
               <ArrowLeft className="h-4 w-4" />
               StudyBridge
             </Link>
-            <ThemeToggle className="theme-hero-toggle mb-4 border-white/20 bg-white/10 text-white hover:bg-white/15 hover:text-white lg:hidden" />
+            <div className="mb-4 flex gap-2 lg:hidden">
+              <LanguageSelect compact className="theme-hero-toggle border-white/20 bg-white/10 text-white hover:bg-white/15 hover:text-white" />
+              <ThemeToggle className="theme-hero-toggle border-white/20 bg-white/10 text-white hover:bg-white/15 hover:text-white" />
+            </div>
 
             <div className="mb-8 flex items-center gap-3 lg:hidden">
               <img
@@ -143,13 +150,13 @@ export function LoginPage() {
                   <Lock className="h-5 w-5 text-primary" />
                 </div>
                 <p className="text-sm font-bold uppercase text-cyan-400">
-                  Secure access
+                  {t('auth.secureAccess')}
                 </p>
                 <h1 className="mt-2 text-3xl font-semibold text-foreground">
-                  Sign in
+                  {t('auth.signInTitle')}
                 </h1>
                 <p className="mt-2 text-sm leading-6 text-muted-foreground">
-                  Access your student dashboard and continue your workflow.
+                  {t('auth.signInDescription')}
                 </p>
               </div>
 
@@ -159,7 +166,7 @@ export function LoginPage() {
                     className="rounded-lg border border-emerald-700/40 bg-emerald-950/40 px-4 py-3 text-sm text-emerald-300"
                     role="status"
                   >
-                    Registration successful. You can sign in now.
+                    {t('auth.registrationSuccessful')}
                   </div>
                 ) : null}
                 <ErrorAlert message={error} />
@@ -169,7 +176,7 @@ export function LoginPage() {
                     htmlFor="email"
                     className="mb-1.5 block text-sm font-semibold text-slate-300"
                   >
-                    Email
+                    {t('common.email')}
                   </label>
                   <div className="relative">
                     <Mail className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-500" />
@@ -192,7 +199,7 @@ export function LoginPage() {
                     htmlFor="password"
                     className="mb-1.5 block text-sm font-semibold text-slate-300"
                   >
-                    Password
+                    {t('auth.password')}
                   </label>
                   <div className="relative">
                     <Lock className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-500" />
@@ -205,31 +212,31 @@ export function LoginPage() {
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       className={inputClass}
-                      placeholder="Password"
+                      placeholder={t('auth.passwordPlaceholder')}
                     />
                   </div>
                 </div>
 
                 {submitting ? (
-                  <Spinner label="Signing you in…" />
+                  <Spinner label={t('auth.signingIn')} />
                 ) : (
                   <button
                     type="submit"
                     className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-primary px-5 py-3 text-sm font-bold text-primary-foreground shadow-xl shadow-primary/20 transition hover:-translate-y-0.5 hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-cyan-400 focus:ring-offset-2 focus:ring-offset-transparent"
                   >
-                    Sign in
+                    {t('common.signIn')}
                     <ArrowRight className="h-4 w-4" />
                   </button>
                 )}
               </form>
 
               <p className="mt-8 text-center text-sm text-muted-foreground">
-                No account?{' '}
+                {t('auth.noAccount')}{' '}
                 <Link
                   to="/register"
                   className="font-bold text-cyan-400 hover:text-cyan-300"
                 >
-                  Create one
+                  {t('auth.createOne')}
                 </Link>
               </p>
             </div>

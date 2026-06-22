@@ -2,10 +2,10 @@ import { useCallback, useEffect, useState } from 'react'
 import { Bell, Plus, Trash2 } from 'lucide-react'
 import * as reminderApi from '../api/reminderApi'
 import { getErrorMessage } from '../api/errors'
+import { useLanguage } from '../context/LanguageContext'
 import { ReminderFormModal } from './ReminderFormModal'
 import type { Assignment } from '../types/assignment'
 import type { Reminder, ReminderInput } from '../types/reminder'
-import { REMINDER_TYPE_LABELS } from '../utils/reminderPresets'
 
 type AssignmentRemindersProps = {
   assignment: Assignment
@@ -13,6 +13,7 @@ type AssignmentRemindersProps = {
 }
 
 export function AssignmentReminders({ assignment, onChanged }: AssignmentRemindersProps) {
+  const { locale, t } = useLanguage()
   const [reminders, setReminders] = useState<Reminder[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
@@ -58,7 +59,7 @@ export function AssignmentReminders({ assignment, onChanged }: AssignmentReminde
   }
 
   async function handleDelete(reminder: Reminder) {
-    if (!window.confirm('Delete this reminder?')) return
+    if (!window.confirm(t('reminders.deleteConfirm'))) return
     try {
       await reminderApi.deleteReminder(reminder.id)
       await load()
@@ -83,7 +84,7 @@ export function AssignmentReminders({ assignment, onChanged }: AssignmentReminde
       <div className="mb-2 flex items-center justify-between">
         <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
           <Bell className="h-4 w-4" />
-          Reminders
+          {t('reminders.title')}
         </div>
         <button
           type="button"
@@ -94,16 +95,16 @@ export function AssignmentReminders({ assignment, onChanged }: AssignmentReminde
           className="inline-flex items-center gap-1 text-xs font-medium text-primary hover:underline"
         >
           <Plus className="h-3.5 w-3.5" />
-          Add
+          {t('reminders.add')}
         </button>
       </div>
 
       {error ? <p className="mb-2 text-xs text-destructive">{error}</p> : null}
 
       {loading ? (
-        <p className="text-xs text-muted-foreground">Loading reminders…</p>
+        <p className="text-xs text-muted-foreground">{t('reminders.loading')}</p>
       ) : reminders.length === 0 ? (
-        <p className="text-xs text-muted-foreground">No reminders set.</p>
+        <p className="text-xs text-muted-foreground">{t('reminders.none')}</p>
       ) : (
         <ul className="space-y-2">
           {reminders.map((r) => (
@@ -114,9 +115,11 @@ export function AssignmentReminders({ assignment, onChanged }: AssignmentReminde
               }`}
             >
               <div>
-                <p className="font-medium">{REMINDER_TYPE_LABELS[r.reminderType]}</p>
-                <p>{new Date(r.remindAt).toLocaleString()}</p>
-                {r.sent ? <p className="mt-0.5 text-emerald-400">Dismissed</p> : null}
+                <p className="font-medium">{t(`reminderType.${r.reminderType}`)}</p>
+                <p>{new Date(r.remindAt).toLocaleString(locale)}</p>
+                {r.sent ? (
+                  <p className="mt-0.5 text-emerald-400">{t('reminders.dismissed')}</p>
+                ) : null}
               </div>
               <div className="flex shrink-0 gap-1">
                 {!r.sent ? (
@@ -125,7 +128,7 @@ export function AssignmentReminders({ assignment, onChanged }: AssignmentReminde
                     onClick={() => void handleDismiss(r)}
                     className="rounded px-2 py-1 text-primary hover:bg-accent"
                   >
-                    Dismiss
+                    {t('common.dismiss')}
                   </button>
                 ) : null}
                 <button
@@ -136,13 +139,13 @@ export function AssignmentReminders({ assignment, onChanged }: AssignmentReminde
                   }}
                   className="rounded px-2 py-1 text-muted-foreground hover:bg-accent hover:text-foreground"
                 >
-                  Edit
+                  {t('common.edit')}
                 </button>
                 <button
                   type="button"
                   onClick={() => void handleDelete(r)}
                   className="rounded p-1 text-destructive hover:bg-red-950/40"
-                  aria-label="Delete reminder"
+                  aria-label={t('reminders.deleteAria')}
                 >
                   <Trash2 className="h-3.5 w-3.5" />
                 </button>

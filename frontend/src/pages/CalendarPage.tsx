@@ -2,11 +2,10 @@ import { useEffect, useMemo, useState } from 'react'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 import * as assignmentApi from '../api/assignmentApi'
 import { getErrorMessage } from '../api/errors'
+import { useLanguage } from '../context/LanguageContext'
 import { ErrorAlert } from '../components/ErrorAlert'
 import { Spinner } from '../components/Spinner'
 import type { Assignment } from '../types/assignment'
-
-const WEEKDAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
 
 function toDateKey(date: Date): string {
   const y = date.getFullYear()
@@ -15,8 +14,8 @@ function toDateKey(date: Date): string {
   return `${y}-${m}-${d}`
 }
 
-function formatDate(dateString: string): string {
-  return new Date(dateString + 'T00:00:00').toLocaleDateString(undefined, {
+function formatDate(dateString: string, locale: string): string {
+  return new Date(dateString + 'T00:00:00').toLocaleDateString(locale, {
     weekday: 'short',
     year: 'numeric',
     month: 'short',
@@ -25,6 +24,7 @@ function formatDate(dateString: string): string {
 }
 
 export function CalendarPage() {
+  const { locale, t } = useLanguage()
   const [assignments, setAssignments] = useState<Assignment[]>([])
   const [viewDate, setViewDate] = useState(() => new Date())
   const [selectedDate, setSelectedDate] = useState(() => toDateKey(new Date()))
@@ -77,10 +77,19 @@ export function CalendarPage() {
   const selectedAssignments = byDate.get(selectedDate) ?? []
   const pendingCount = assignments.filter((a) => a.status === 'PENDING').length
   const completedCount = assignments.filter((a) => a.status === 'COMPLETED').length
-  const monthLabel = viewDate.toLocaleDateString(undefined, {
+  const monthLabel = viewDate.toLocaleDateString(locale, {
     month: 'long',
     year: 'numeric',
   })
+  const weekdays = useMemo(
+    () =>
+      Array.from({ length: 7 }, (_, index) =>
+        new Date(2026, 5, index).toLocaleDateString(locale, {
+          weekday: 'short',
+        }),
+      ),
+    [locale],
+  )
   const todayKey = toDateKey(new Date())
   const cells: (number | null)[] = []
   for (let i = 0; i < startWeekday; i++) cells.push(null)
@@ -93,33 +102,33 @@ export function CalendarPage() {
   return (
     <div className="space-y-6 p-4 md:p-8">
       <div>
-        <h1 className="text-2xl font-semibold text-foreground">Calendar</h1>
+        <h1 className="text-2xl font-semibold text-foreground">{t('calendar.title')}</h1>
         <p className="mt-1 text-muted-foreground">
-          Review assignment deadlines across the month.
+          {t('calendar.description')}
         </p>
       </div>
 
       <ErrorAlert message={error} />
 
       {loading ? (
-        <Spinner label="Loading calendar..." />
+        <Spinner label={t('calendar.loading')} />
       ) : (
         <>
           <div className="grid gap-4 sm:grid-cols-3">
             <div className="rounded-xl border border-white/8 bg-muted p-5 shadow-sm">
-              <p className="text-sm text-muted-foreground">Total assignments</p>
+              <p className="text-sm text-muted-foreground">{t('calendar.totalAssignments')}</p>
               <p className="mt-2 text-2xl font-semibold text-foreground">
                 {assignments.length}
               </p>
             </div>
             <div className="rounded-xl border border-white/8 bg-muted p-5 shadow-sm">
-              <p className="text-sm text-muted-foreground">Pending</p>
+              <p className="text-sm text-muted-foreground">{t('common.pending')}</p>
               <p className="mt-2 text-2xl font-semibold text-foreground">
                 {pendingCount}
               </p>
             </div>
             <div className="rounded-xl border border-white/8 bg-muted p-5 shadow-sm">
-              <p className="text-sm text-muted-foreground">Completed</p>
+              <p className="text-sm text-muted-foreground">{t('common.completed')}</p>
               <p className="mt-2 text-2xl font-semibold text-foreground">
                 {completedCount}
               </p>
@@ -135,7 +144,7 @@ export function CalendarPage() {
                     type="button"
                     onClick={() => shiftMonth(-1)}
                     className="rounded-lg p-2 text-muted-foreground hover:bg-accent hover:text-foreground"
-                    aria-label="Previous month"
+                    aria-label={t('calendar.previousMonth')}
                   >
                     <ChevronLeft className="h-5 w-5" />
                   </button>
@@ -143,15 +152,15 @@ export function CalendarPage() {
                     type="button"
                     onClick={() => shiftMonth(1)}
                     className="rounded-lg p-2 text-muted-foreground hover:bg-accent hover:text-foreground"
-                    aria-label="Next month"
+                    aria-label={t('calendar.nextMonth')}
                   >
                     <ChevronRight className="h-5 w-5" />
                   </button>
                 </div>
               </div>
               <div className="grid grid-cols-7 gap-2 text-center text-xs">
-                {WEEKDAYS.map((weekday) => (
-                  <div key={weekday} className="py-2 font-medium text-muted-foreground">
+                {weekdays.map((weekday, index) => (
+                  <div key={`${weekday}-${index}`} className="py-2 font-medium text-muted-foreground">
                     {weekday}
                   </div>
                 ))}
@@ -190,7 +199,7 @@ export function CalendarPage() {
                             }`}
                           />
                           <p className="truncate text-xs text-muted-foreground">
-                            {dayAssignments.length} due
+                            {t('calendar.dueCount', { count: dayAssignments.length })}
                           </p>
                         </div>
                       ) : null}
@@ -202,12 +211,12 @@ export function CalendarPage() {
 
             <aside className="rounded-xl border border-white/8 bg-muted p-5 shadow-sm">
               <h2 className="font-semibold text-foreground">
-                {formatDate(selectedDate)}
+                {formatDate(selectedDate, locale)}
               </h2>
               <div className="mt-4 space-y-3">
                 {selectedAssignments.length === 0 ? (
                   <p className="text-sm text-muted-foreground">
-                    No assignments due on this day.
+                    {t('calendar.noAssignmentsDay')}
                   </p>
                 ) : (
                   selectedAssignments.map((assignment) => (
@@ -223,7 +232,9 @@ export function CalendarPage() {
                             : 'bg-primary/15 text-primary'
                         }`}
                       >
-                        {assignment.status === 'COMPLETED' ? 'Completed' : 'Pending'}
+                        {assignment.status === 'COMPLETED'
+                          ? t('common.completed')
+                          : t('common.pending')}
                       </span>
                     </div>
                   ))

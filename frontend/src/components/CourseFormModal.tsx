@@ -1,5 +1,6 @@
 import { type FormEvent, useEffect, useState } from 'react'
 import { X } from 'lucide-react'
+import { useLanguage } from '../context/LanguageContext'
 import type { Course, CourseInput } from '../types/course'
 
 type CourseFormModalProps = {
@@ -31,6 +32,7 @@ export function CourseFormModal({
   onClose,
   onSubmit,
 }: CourseFormModalProps) {
+  const { t } = useLanguage()
   const [form, setForm] = useState<CourseInput>(emptyForm)
 
   useEffect(() => {
@@ -78,7 +80,7 @@ export function CourseFormModal({
             type="button"
             onClick={onClose}
             className="rounded-lg p-1.5 text-muted-foreground hover:bg-accent"
-            aria-label="Close"
+            aria-label={t('common.close')}
           >
             <X className="h-5 w-5" />
           </button>
@@ -87,7 +89,7 @@ export function CourseFormModal({
         <form onSubmit={(e) => void handleSubmit(e)} className="space-y-4 px-6 py-5">
           <div>
             <label htmlFor="course-title" className="mb-1.5 block text-sm font-medium text-slate-300">
-              Course title
+              {t('courses.courseTitle')}
             </label>
             <input
               id="course-title"
@@ -101,7 +103,7 @@ export function CourseFormModal({
           </div>
           <div>
             <label htmlFor="course-code" className="mb-1.5 block text-sm font-medium text-slate-300">
-              Course code
+              {t('courses.courseCode')}
             </label>
             <input
               id="course-code"
@@ -115,7 +117,7 @@ export function CourseFormModal({
           </div>
           <div>
             <label htmlFor="course-semester" className="mb-1.5 block text-sm font-medium text-slate-300">
-              Semester
+              {t('courses.semester')}
             </label>
             <input
               id="course-semester"
@@ -129,7 +131,10 @@ export function CourseFormModal({
           </div>
           <div>
             <label htmlFor="course-instructor" className="mb-1.5 block text-sm font-medium text-slate-300">
-              Instructor <span className="font-normal text-muted-foreground">(optional)</span>
+              {t('courses.instructor')}{' '}
+              <span className="font-normal text-muted-foreground">
+                ({t('common.optional')})
+              </span>
             </label>
             <input
               id="course-instructor"
@@ -148,14 +153,14 @@ export function CourseFormModal({
               disabled={submitting}
               className="rounded-lg border border-white/10 px-4 py-2 text-sm font-medium text-muted-foreground hover:bg-accent disabled:opacity-50"
             >
-              Cancel
+              {t('common.cancel')}
             </button>
             <button
               type="submit"
               disabled={submitting}
               className="rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:opacity-90 disabled:opacity-50"
             >
-              {submitting ? 'Saving…' : submitLabel}
+              {submitting ? t('courses.saving') : submitLabel}
             </button>
           </div>
         </form>

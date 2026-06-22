@@ -3,6 +3,7 @@ import { CheckCircle2, Circle, Pencil, Plus, Trash2 } from 'lucide-react'
 import * as assignmentApi from '../api/assignmentApi'
 import * as courseApi from '../api/courseApi'
 import { getErrorMessage } from '../api/errors'
+import { useLanguage } from '../context/LanguageContext'
 import { AssignmentFormModal } from '../components/AssignmentFormModal'
 import { AssignmentReminders } from '../components/AssignmentReminders'
 import { ErrorAlert } from '../components/ErrorAlert'
@@ -12,8 +13,8 @@ import type { Course } from '../types/course'
 
 type Filter = 'all' | 'pending' | 'completed'
 
-function formatDueDate(isoDate: string): string {
-  return new Date(isoDate + 'T00:00:00').toLocaleDateString(undefined, {
+function formatDueDate(isoDate: string, locale: string): string {
+  return new Date(isoDate + 'T00:00:00').toLocaleDateString(locale, {
     year: 'numeric',
     month: 'short',
     day: 'numeric',
@@ -21,6 +22,7 @@ function formatDueDate(isoDate: string): string {
 }
 
 export function AssignmentsPage() {
+  const { locale, t } = useLanguage()
   const [assignments, setAssignments] = useState<Assignment[]>([])
   const [courses, setCourses] = useState<Course[]>([])
   const [loading, setLoading] = useState(true)
@@ -110,7 +112,7 @@ export function AssignmentsPage() {
   }
 
   async function handleDelete(assignment: Assignment) {
-    if (!window.confirm(`Delete "${assignment.title}"?`)) return
+    if (!window.confirm(t('assignments.deleteConfirm', { title: assignment.title }))) return
     setError('')
     try {
       await assignmentApi.deleteAssignment(assignment.id)
@@ -121,18 +123,18 @@ export function AssignmentsPage() {
   }
 
   const filterButtons: { key: Filter; label: string }[] = [
-    { key: 'all', label: 'All' },
-    { key: 'pending', label: 'Pending' },
-    { key: 'completed', label: 'Completed' },
+    { key: 'all', label: t('common.all') },
+    { key: 'pending', label: t('common.pending') },
+    { key: 'completed', label: t('common.completed') },
   ]
 
   return (
     <div className="space-y-6 p-4 md:p-8">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-semibold text-foreground">Assignments</h1>
+          <h1 className="text-2xl font-semibold text-foreground">{t('assignments.title')}</h1>
           <p className="mt-1 text-muted-foreground">
-            Track deadlines and mark tasks complete.
+            {t('assignments.description')}
           </p>
         </div>
         <button
@@ -141,7 +143,7 @@ export function AssignmentsPage() {
           className="inline-flex items-center justify-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground shadow-sm hover:opacity-90"
         >
           <Plus className="h-4 w-4" />
-          Add assignment
+          {t('assignments.add')}
         </button>
       </div>
 
@@ -165,14 +167,14 @@ export function AssignmentsPage() {
       <ErrorAlert message={error} />
 
       {loading ? (
-        <Spinner label="Loading assignments…" />
+        <Spinner label={t('assignments.loading')} />
       ) : filtered.length === 0 ? (
         <div className="rounded-xl border border-dashed border-white/15 bg-muted p-12 text-center">
-          <p className="font-medium text-foreground">No assignments found</p>
+          <p className="font-medium text-foreground">{t('assignments.noFound')}</p>
           <p className="mt-1 text-sm text-muted-foreground">
             {filter === 'all'
-              ? 'Create an assignment linked to one of your courses.'
-              : `No ${filter} assignments.`}
+              ? t('assignments.emptyAll')
+              : t('assignments.emptyFiltered', { filter: t(`common.${filter}`) })}
           </p>
           {filter === 'all' ? (
             <button
@@ -181,7 +183,7 @@ export function AssignmentsPage() {
               className="mt-6 inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground"
             >
               <Plus className="h-4 w-4" />
-              Add assignment
+              {t('assignments.add')}
             </button>
           ) : null}
         </div>
@@ -201,8 +203,8 @@ export function AssignmentsPage() {
                   className="mt-0.5 shrink-0 text-primary hover:opacity-80"
                   aria-label={
                     assignment.status === 'PENDING'
-                      ? 'Mark as completed'
-                      : 'Mark as pending'
+                      ? t('assignments.markCompleted')
+                      : t('assignments.markPending')
                   }
                 >
                   {assignment.status === 'COMPLETED' ? (
@@ -230,7 +232,7 @@ export function AssignmentsPage() {
                         type="button"
                         onClick={() => openEdit(assignment)}
                         className="rounded-lg p-2 text-muted-foreground hover:bg-accent hover:text-foreground"
-                        aria-label="Edit"
+                        aria-label={t('common.edit')}
                       >
                         <Pencil className="h-4 w-4" />
                       </button>
@@ -238,7 +240,7 @@ export function AssignmentsPage() {
                         type="button"
                         onClick={() => void handleDelete(assignment)}
                         className="rounded-lg p-2 text-muted-foreground hover:bg-red-950/40 hover:text-destructive"
-                        aria-label="Delete"
+                        aria-label={t('common.delete')}
                       >
                         <Trash2 className="h-4 w-4" />
                       </button>
@@ -248,7 +250,9 @@ export function AssignmentsPage() {
                     <p className="mt-2 text-sm text-muted-foreground">{assignment.description}</p>
                   ) : null}
                   <p className="mt-2 text-sm font-medium text-foreground">
-                    Due: {formatDueDate(assignment.dueDate)}
+                    {t('assignments.due', {
+                      date: formatDueDate(assignment.dueDate, locale),
+                    })}
                   </p>
                   <AssignmentReminders assignment={assignment} />
                 </div>
@@ -260,8 +264,8 @@ export function AssignmentsPage() {
 
       <AssignmentFormModal
         open={modalOpen}
-        title={editing ? 'Edit assignment' : 'Add assignment'}
-        submitLabel={editing ? 'Save changes' : 'Create assignment'}
+        title={editing ? t('assignments.edit') : t('assignments.add')}
+        submitLabel={editing ? t('common.saveChanges') : t('assignments.create')}
         courses={courses}
         initial={editing}
         submitting={submitting}

@@ -13,6 +13,7 @@ import 'react-pdf/dist/Page/AnnotationLayer.css'
 import 'react-pdf/dist/Page/TextLayer.css'
 import * as documentApi from '../api/documentApi'
 import { getErrorMessage } from '../api/errors'
+import { useLanguage } from '../context/LanguageContext'
 import { ErrorAlert } from '../components/ErrorAlert'
 import { Spinner } from '../components/Spinner'
 import type { StudyDocument, Translation } from '../types/document'
@@ -66,6 +67,7 @@ function isPdfDocument(doc: StudyDocument): boolean {
 }
 
 export function DocumentDetailPage() {
+  const { t } = useLanguage()
   const { id } = useParams()
   const documentId = Number(id)
   const [document, setDocument] = useState<StudyDocument | null>(null)
@@ -208,8 +210,8 @@ export function DocumentDetailPage() {
   function rightTextForPage(index: number): string {
     if (!activeTranslation) {
       return rightMode === 'translation'
-        ? 'No translation generated for the selected language yet.'
-        : 'No simplified explanation generated for the selected language yet.'
+        ? t('documentDetail.noTranslation')
+        : t('documentDetail.noExplanation')
     }
     const value = rightPages[index]
     if (value && value.trim().length > 0) return value
@@ -231,13 +233,13 @@ export function DocumentDetailPage() {
         className="inline-flex items-center gap-2 text-sm font-medium text-primary hover:underline"
       >
         <ArrowLeft className="h-4 w-4" />
-        Documents
+        {t('documentDetail.back')}
       </Link>
 
       <ErrorAlert message={error} />
 
       {loading || !document ? (
-        <Spinner label="Loading document..." />
+        <Spinner label={t('documentDetail.loading')} />
       ) : (
         <>
           <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
@@ -258,17 +260,18 @@ export function DocumentDetailPage() {
               className="inline-flex items-center justify-center gap-2 rounded-lg border border-white/10 bg-muted px-4 py-2.5 text-sm font-semibold text-foreground shadow-sm hover:bg-accent"
             >
               <Download className="h-4 w-4" />
-              Download
+              {t('common.download')}
             </button>
           </div>
 
           <div className="grid gap-6 xl:grid-cols-[320px_1fr]">
             <aside className="space-y-4 rounded-xl border border-white/8 bg-muted p-5 shadow-sm">
               <div>
-                <h2 className="font-semibold text-foreground">Document processing</h2>
+                <h2 className="font-semibold text-foreground">
+                  {t('documentDetail.processingTitle')}
+                </h2>
                 <p className="mt-1 text-sm text-muted-foreground">
-                  Generate a side-by-side translation that keeps each page aligned
-                  with the original.
+                  {t('documentDetail.processingDescription')}
                 </p>
               </div>
               <form onSubmit={(e) => void handleProcess(e)} className="space-y-3">
@@ -277,7 +280,7 @@ export function DocumentDetailPage() {
                     htmlFor="target-language"
                     className="mb-1.5 block text-sm font-medium text-slate-300"
                   >
-                    Target language
+                    {t('documentDetail.targetLanguage')}
                   </label>
                   <select
                     id="target-language"
@@ -299,12 +302,14 @@ export function DocumentDetailPage() {
                   className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground hover:opacity-90 disabled:opacity-50"
                 >
                   <Languages className="h-4 w-4" />
-                  {processing ? 'Processing...' : 'Generate'}
+                  {processing ? t('documentDetail.processing') : t('common.generate')}
                 </button>
               </form>
               {latestTranslation ? (
                 <div className="rounded-lg bg-accent p-3 text-xs text-muted-foreground">
-                  Latest result: {latestTranslation.targetLanguage}
+                  {t('documentDetail.latestResult', {
+                    language: latestTranslation.targetLanguage,
+                  })}
                 </div>
               ) : null}
             </aside>
@@ -312,9 +317,9 @@ export function DocumentDetailPage() {
             <section className="min-w-0 rounded-xl border border-white/8 bg-muted shadow-sm">
               <div className="flex flex-wrap items-center justify-between gap-3 border-b border-white/8 p-4">
                 <div className="text-sm font-medium text-muted-foreground">
-                  Original
+                  {t('documentDetail.original')}
                   <span className="mx-2 text-white/20">|</span>
-                  Side-by-side
+                  {t('documentDetail.sideBySide')}
                 </div>
                 <div className="flex flex-wrap gap-2">
                   <button
@@ -322,7 +327,7 @@ export function DocumentDetailPage() {
                     onClick={() => setRightMode('translation')}
                     className={modeButtonClass('translation')}
                   >
-                    Translation
+                    {t('documentDetail.translation')}
                   </button>
                   <button
                     type="button"
@@ -331,7 +336,7 @@ export function DocumentDetailPage() {
                   >
                     <span className="inline-flex items-center gap-1">
                       <Sparkles className="h-4 w-4" />
-                      Explanation
+                      {t('documentDetail.explanation')}
                     </span>
                   </button>
                 </div>
@@ -344,7 +349,7 @@ export function DocumentDetailPage() {
                   ) : null}
 
                   {isPdf && !fileUrl && !pdfError ? (
-                    <Spinner label="Rendering document..." />
+                    <Spinner label={t('documentDetail.rendering')} />
                   ) : null}
 
                   {isPdf && fileUrl ? (
@@ -354,7 +359,7 @@ export function DocumentDetailPage() {
                         setNumPages(loaded)
                       }
                       onLoadError={(err) => setPdfError(err.message)}
-                      loading={<Spinner label="Rendering document..." />}
+                      loading={<Spinner label={t('documentDetail.rendering')} />}
                     >
                       <div className="space-y-6">
                         {Array.from({ length: pageCount }, (_, index) => (
@@ -379,7 +384,7 @@ export function DocumentDetailPage() {
                   {!isPdf ? (
                     originalPages.length === 0 ? (
                       <p className="text-sm text-muted-foreground">
-                        No readable text could be extracted from this file.
+                        {t('documentDetail.noReadable')}
                       </p>
                     ) : (
                       <div className="space-y-6">
@@ -394,7 +399,10 @@ export function DocumentDetailPage() {
                                 {pageText || '—'}
                               </pre>
                             </div>
-                            <RightCell text={rightTextForPage(index)} page={index + 1} />
+                            <RightCell
+                              text={rightTextForPage(index)}
+                              page={index + 1}
+                            />
                           </PageRow>
                         ))}
                       </div>
@@ -434,10 +442,11 @@ function PageRow({
 }
 
 function RightCell({ text, page }: { text: string; page: number }) {
+  const { t } = useLanguage()
   return (
     <div className="min-w-0 rounded-lg bg-accent p-4 ring-1 ring-white/10">
       <div className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-        Page {page}
+        {t('documentDetail.page', { page })}
       </div>
       <pre className="whitespace-pre-wrap break-words font-sans text-sm leading-6 text-foreground">
         {text}

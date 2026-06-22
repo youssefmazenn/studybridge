@@ -2,12 +2,14 @@ import { useCallback, useEffect, useState } from 'react'
 import { BookOpen, Pencil, Plus, Trash2 } from 'lucide-react'
 import * as courseApi from '../api/courseApi'
 import { getErrorMessage } from '../api/errors'
+import { useLanguage } from '../context/LanguageContext'
 import { CourseFormModal } from '../components/CourseFormModal'
 import { ErrorAlert } from '../components/ErrorAlert'
 import { Spinner } from '../components/Spinner'
 import type { Course, CourseInput } from '../types/course'
 
 export function CoursesPage() {
+  const { t } = useLanguage()
   const [courses, setCourses] = useState<Course[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
@@ -70,7 +72,7 @@ export function CoursesPage() {
 
   async function handleDelete(course: Course) {
     const confirmed = window.confirm(
-      `Delete "${course.title}"? This cannot be undone.`,
+      t('courses.deleteConfirm', { title: course.title }),
     )
     if (!confirmed) return
 
@@ -87,9 +89,9 @@ export function CoursesPage() {
     <div className="space-y-6 p-4 md:p-8">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-semibold text-foreground">Courses</h1>
+          <h1 className="text-2xl font-semibold text-foreground">{t('courses.title')}</h1>
           <p className="mt-1 text-muted-foreground">
-            Organize your academic courses and related materials.
+            {t('courses.description')}
           </p>
         </div>
         <button
@@ -98,20 +100,20 @@ export function CoursesPage() {
           className="inline-flex items-center justify-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground shadow-sm hover:opacity-90"
         >
           <Plus className="h-4 w-4" />
-          Add course
+          {t('courses.add')}
         </button>
       </div>
 
       <ErrorAlert message={error} />
 
       {loading ? (
-        <Spinner label="Loading courses…" />
+        <Spinner label={t('dashboard.loadingCourses')} />
       ) : courses.length === 0 ? (
         <div className="rounded-xl border border-dashed border-white/15 bg-muted p-12 text-center">
           <BookOpen className="mx-auto h-10 w-10 text-muted-foreground" />
-          <p className="mt-4 font-medium text-foreground">No courses yet</p>
+          <p className="mt-4 font-medium text-foreground">{t('courses.noCourses')}</p>
           <p className="mt-1 text-sm text-muted-foreground">
-            Add your first course to get started.
+            {t('courses.emptyHint')}
           </p>
           <button
             type="button"
@@ -119,7 +121,7 @@ export function CoursesPage() {
             className="mt-6 inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground"
           >
             <Plus className="h-4 w-4" />
-            Add course
+            {t('courses.add')}
           </button>
         </div>
       ) : (
@@ -138,7 +140,7 @@ export function CoursesPage() {
                     type="button"
                     onClick={() => openEdit(course)}
                     className="rounded-lg p-2 text-muted-foreground hover:bg-accent hover:text-foreground"
-                    aria-label={`Edit ${course.title}`}
+                    aria-label={`${t('common.edit')} ${course.title}`}
                   >
                     <Pencil className="h-4 w-4" />
                   </button>
@@ -146,7 +148,7 @@ export function CoursesPage() {
                     type="button"
                     onClick={() => void handleDelete(course)}
                     className="rounded-lg p-2 text-muted-foreground hover:bg-red-950/40 hover:text-destructive"
-                    aria-label={`Delete ${course.title}`}
+                    aria-label={`${t('common.delete')} ${course.title}`}
                   >
                     <Trash2 className="h-4 w-4" />
                   </button>
@@ -164,8 +166,8 @@ export function CoursesPage() {
 
       <CourseFormModal
         open={modalOpen}
-        title={editing ? 'Edit course' : 'Add course'}
-        submitLabel={editing ? 'Save changes' : 'Create course'}
+        title={editing ? t('courses.edit') : t('courses.add')}
+        submitLabel={editing ? t('common.saveChanges') : t('courses.create')}
         initial={editing}
         submitting={submitting}
         onClose={closeModal}

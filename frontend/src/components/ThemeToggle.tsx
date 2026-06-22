@@ -1,4 +1,5 @@
 import { Moon, Sun } from 'lucide-react'
+import { useLanguage } from '../context/LanguageContext'
 import { useTheme } from '../context/ThemeContext'
 
 type ThemeToggleProps = {
@@ -8,8 +9,9 @@ type ThemeToggleProps = {
 
 export function ThemeToggle({ variant = 'icon', className = '' }: ThemeToggleProps) {
   const { theme, toggleTheme } = useTheme()
+  const { t } = useLanguage()
   const isDark = theme === 'dark'
-  const label = isDark ? 'Switch to light mode' : 'Switch to dark mode'
+  const label = isDark ? t('theme.toLight') : t('theme.toDark')
   const Icon = isDark ? Sun : Moon
 
   if (variant === 'inline') {
@@ -26,7 +28,7 @@ export function ThemeToggle({ variant = 'icon', className = '' }: ThemeTogglePro
         aria-label={label}
       >
         <Icon className="h-5 w-5 shrink-0" />
-        {isDark ? 'Light mode' : 'Dark mode'}
+        {isDark ? t('theme.light') : t('theme.dark')}
       </button>
     )
   }

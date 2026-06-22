@@ -1,5 +1,6 @@
 import { type FormEvent, useState } from 'react'
 import { X } from 'lucide-react'
+import { useLanguage } from '../context/LanguageContext'
 import type { Course } from '../types/course'
 import type { DocumentUploadInput } from '../types/document'
 
@@ -21,6 +22,7 @@ export function DocumentUploadModal({
   onClose,
   onSubmit,
 }: DocumentUploadModalProps) {
+  const { t } = useLanguage()
   const [courseId, setCourseId] = useState('')
   const [title, setTitle] = useState('')
   const [originalLanguage, setOriginalLanguage] = useState('German')
@@ -55,13 +57,13 @@ export function DocumentUploadModal({
       <div className="w-full max-w-md rounded-2xl border border-white/10 bg-muted shadow-2xl shadow-black/50">
         <div className="flex items-center justify-between border-b border-white/8 px-6 py-4">
           <h2 id="document-upload-title" className="text-lg font-semibold text-foreground">
-            Upload document
+            {t('documents.upload')}
           </h2>
           <button
             type="button"
             onClick={onClose}
             className="rounded-lg p-1.5 text-muted-foreground hover:bg-accent"
-            aria-label="Close"
+            aria-label={t('common.close')}
           >
             <X className="h-5 w-5" />
           </button>
@@ -70,13 +72,13 @@ export function DocumentUploadModal({
         <form onSubmit={(e) => void handleSubmit(e)} className="space-y-4 px-6 py-5">
           {courses.length === 0 ? (
             <p className="text-sm text-destructive">
-              Add a course first before uploading documents.
+              {t('documents.addCourseFirst')}
             </p>
           ) : (
             <>
               <div>
                 <label htmlFor="document-course" className="mb-1.5 block text-sm font-medium text-slate-300">
-                  Course
+                  {t('common.course')}
                 </label>
                 <select
                   id="document-course"
@@ -86,7 +88,7 @@ export function DocumentUploadModal({
                   className={inputClass}
                 >
                   <option value="" disabled>
-                    Select a course
+                    {t('common.selectCourse')}
                   </option>
                   {courses.map((course) => (
                     <option key={course.id} value={course.id}>
@@ -97,7 +99,7 @@ export function DocumentUploadModal({
               </div>
               <div>
                 <label htmlFor="document-title" className="mb-1.5 block text-sm font-medium text-slate-300">
-                  Title
+                  {t('assignments.titleField')}
                 </label>
                 <input
                   id="document-title"
@@ -106,12 +108,12 @@ export function DocumentUploadModal({
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
                   className={inputClass}
-                  placeholder="Lecture slides"
+                  placeholder={t('documents.filePlaceholder')}
                 />
               </div>
               <div>
                 <label htmlFor="document-language" className="mb-1.5 block text-sm font-medium text-slate-300">
-                  Original language
+                  {t('documents.originalLanguage')}
                 </label>
                 <input
                   id="document-language"
@@ -124,7 +126,7 @@ export function DocumentUploadModal({
               </div>
               <div>
                 <label htmlFor="document-file" className="mb-1.5 block text-sm font-medium text-slate-300">
-                  File
+                  {t('documents.file')}
                 </label>
                 <input
                   id="document-file"
@@ -145,14 +147,14 @@ export function DocumentUploadModal({
               disabled={submitting}
               className="rounded-lg border border-white/10 px-4 py-2 text-sm font-medium text-muted-foreground hover:bg-accent disabled:opacity-50"
             >
-              Cancel
+              {t('common.cancel')}
             </button>
             <button
               type="submit"
               disabled={submitting || courses.length === 0}
               className="rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:opacity-90 disabled:opacity-50"
             >
-              {submitting ? 'Uploading...' : 'Upload'}
+              {submitting ? t('documents.uploading') : t('common.upload')}
             </button>
           </div>
         </form>

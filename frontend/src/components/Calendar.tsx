@@ -1,13 +1,12 @@
 import { useMemo, useState } from 'react'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
+import { useLanguage } from '../context/LanguageContext'
 import type { DashboardDeadline } from '../types/dashboard'
 
 type CalendarProps = {
   assignments: DashboardDeadline[]
   compact?: boolean
 }
-
-const WEEKDAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
 
 function toDateKey(date: Date): string {
   const y = date.getFullYear()
@@ -17,6 +16,7 @@ function toDateKey(date: Date): string {
 }
 
 export function Calendar({ assignments, compact = false }: CalendarProps) {
+  const { locale } = useLanguage()
   const [viewDate, setViewDate] = useState(() => new Date())
 
   const dueDates = useMemo(() => {
@@ -42,10 +42,20 @@ export function Calendar({ assignments, compact = false }: CalendarProps) {
     }
   }, [viewDate])
 
-  const monthLabel = viewDate.toLocaleDateString(undefined, {
+  const monthLabel = viewDate.toLocaleDateString(locale, {
     month: 'long',
     year: 'numeric',
   })
+
+  const weekdays = useMemo(
+    () =>
+      Array.from({ length: 7 }, (_, index) =>
+        new Date(2026, 5, index).toLocaleDateString(locale, {
+          weekday: compact ? 'narrow' : 'short',
+        }),
+      ),
+    [compact, locale],
+  )
 
   function shiftMonth(delta: number) {
     setViewDate((d) => new Date(d.getFullYear(), d.getMonth() + delta, 1))
@@ -84,9 +94,9 @@ export function Calendar({ assignments, compact = false }: CalendarProps) {
       </div>
 
       <div className="grid grid-cols-7 gap-1 text-center text-xs">
-        {WEEKDAYS.map((w) => (
-          <div key={w} className="py-1 font-medium text-muted-foreground">
-            {compact ? w.charAt(0) : w}
+        {weekdays.map((w, index) => (
+          <div key={`${w}-${index}`} className="py-1 font-medium text-muted-foreground">
+            {w}
           </div>
         ))}
         {cells.map((day, index) => {

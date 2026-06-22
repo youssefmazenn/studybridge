@@ -1,9 +1,9 @@
 import { type FormEvent, useEffect, useState } from 'react'
 import { X } from 'lucide-react'
+import { useLanguage } from '../context/LanguageContext'
 import type { Assignment } from '../types/assignment'
 import type { Reminder, ReminderInput, ReminderType } from '../types/reminder'
 import {
-  REMINDER_TYPE_LABELS,
   computeRemindAt,
   toDatetimeLocalValue,
 } from '../utils/reminderPresets'
@@ -35,6 +35,7 @@ export function ReminderFormModal({
   onClose,
   onSubmit,
 }: ReminderFormModalProps) {
+  const { locale, t } = useLanguage()
   const [reminderType, setReminderType] = useState<ReminderType>('ONE_DAY_BEFORE')
   const [customAt, setCustomAt] = useState('')
 
@@ -77,13 +78,13 @@ export function ReminderFormModal({
       <div className="w-full max-w-md rounded-2xl border border-white/10 bg-muted shadow-2xl shadow-black/50">
         <div className="flex items-center justify-between border-b border-white/8 px-6 py-4">
           <h2 className="text-lg font-semibold text-foreground">
-            {initial ? 'Edit reminder' : 'Add reminder'}
+            {initial ? t('reminders.edit') : t('reminders.addTitle')}
           </h2>
           <button
             type="button"
             onClick={onClose}
             className="rounded-lg p-1.5 text-muted-foreground hover:bg-accent"
-            aria-label="Close"
+            aria-label={t('common.close')}
           >
             <X className="h-5 w-5" />
           </button>
@@ -91,14 +92,15 @@ export function ReminderFormModal({
 
         <form onSubmit={(e) => void handleSubmit(e)} className="space-y-4 px-6 py-5">
           <p className="text-sm text-muted-foreground">
-            For: <span className="font-medium text-foreground">{assignment.title}</span>
+            {t('reminders.for')}{' '}
+            <span className="font-medium text-foreground">{assignment.title}</span>
             {' '}
-            (due {assignment.dueDate})
+            ({t('reminders.due', { date: assignment.dueDate })})
           </p>
 
           <div>
             <label htmlFor="reminder-type" className="mb-1.5 block text-sm font-medium text-slate-300">
-              When to remind
+              {t('reminders.when')}
             </label>
             <select
               id="reminder-type"
@@ -106,9 +108,9 @@ export function ReminderFormModal({
               onChange={(e) => setReminderType(e.target.value as ReminderType)}
               className={inputClass}
             >
-              {TYPES.map((t) => (
-                <option key={t} value={t}>
-                  {REMINDER_TYPE_LABELS[t]}
+              {TYPES.map((type) => (
+                <option key={type} value={type}>
+                  {t(`reminderType.${type}`)}
                 </option>
               ))}
             </select>
@@ -117,7 +119,7 @@ export function ReminderFormModal({
           {reminderType === 'CUSTOM' ? (
             <div>
               <label htmlFor="reminder-custom" className="mb-1.5 block text-sm font-medium text-slate-300">
-                Remind at
+                {t('reminders.remindAt')}
               </label>
               <input
                 id="reminder-custom"
@@ -131,9 +133,9 @@ export function ReminderFormModal({
           ) : null}
 
           <p className="rounded-lg bg-accent px-3 py-2 text-xs text-muted-foreground">
-            Will remind on:{' '}
+            {t('reminders.willRemind')}{' '}
             <span className="font-medium text-foreground">
-              {new Date(previewAt).toLocaleString()}
+              {new Date(previewAt).toLocaleString(locale)}
             </span>
           </p>
 
@@ -144,14 +146,18 @@ export function ReminderFormModal({
               disabled={submitting}
               className="rounded-lg border border-white/10 px-4 py-2 text-sm font-medium text-muted-foreground hover:bg-accent disabled:opacity-50"
             >
-              Cancel
+              {t('common.cancel')}
             </button>
             <button
               type="submit"
               disabled={submitting}
               className="rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:opacity-90 disabled:opacity-50"
             >
-              {submitting ? 'Saving…' : initial ? 'Save' : 'Add reminder'}
+              {submitting
+                ? t('reminders.saving')
+                : initial
+                  ? t('common.save')
+                  : t('reminders.addTitle')}
             </button>
           </div>
         </form>

@@ -11,14 +11,16 @@ import {
   X,
 } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
+import { useLanguage } from '../context/LanguageContext'
+import { LanguageSelect } from '../components/LanguageSelect'
 import { ThemeToggle } from '../components/ThemeToggle'
 
 const navItems = [
-  { to: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
-  { to: '/courses', label: 'Courses', icon: BookOpen },
-  { to: '/documents', label: 'Documents', icon: FileText },
-  { to: '/assignments', label: 'Assignments', icon: ClipboardList },
-  { to: '/calendar', label: 'Calendar', icon: Calendar },
+  { to: '/dashboard', labelKey: 'nav.dashboard', icon: LayoutDashboard },
+  { to: '/courses', labelKey: 'nav.courses', icon: BookOpen },
+  { to: '/documents', labelKey: 'nav.documents', icon: FileText },
+  { to: '/assignments', labelKey: 'nav.assignments', icon: ClipboardList },
+  { to: '/calendar', labelKey: 'nav.calendar', icon: Calendar },
 ] as const
 
 function navLinkClass({ isActive }: { isActive: boolean }) {
@@ -32,6 +34,7 @@ function navLinkClass({ isActive }: { isActive: boolean }) {
 
 export function AppLayout() {
   const { logout, user } = useAuth()
+  const { t } = useLanguage()
   const navigate = useNavigate()
   const [mobileOpen, setMobileOpen] = useState(false)
 
@@ -50,12 +53,12 @@ export function AppLayout() {
         />
         <div>
           <p className="text-sm font-semibold text-foreground">StudyBridge</p>
-          <p className="text-xs text-muted-foreground">Student Companion</p>
+          <p className="text-xs text-muted-foreground">{t('nav.subtitle')}</p>
         </div>
       </div>
 
       <nav className="flex-1 space-y-1 p-3">
-        {navItems.map(({ to, label, icon: Icon }) => (
+        {navItems.map(({ to, labelKey, icon: Icon }) => (
           <NavLink
             key={to}
             to={to}
@@ -63,7 +66,7 @@ export function AppLayout() {
             onClick={() => setMobileOpen(false)}
           >
             <Icon className="h-5 w-5 shrink-0" />
-            {label}
+            {t(labelKey)}
           </NavLink>
         ))}
       </nav>
@@ -74,6 +77,7 @@ export function AppLayout() {
             {user.name}
           </p>
         ) : null}
+        <LanguageSelect className="mb-2 w-full" />
         <ThemeToggle variant="inline" className="mb-1 w-full" />
         <button
           type="button"
@@ -81,7 +85,7 @@ export function AppLayout() {
           className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
         >
           <LogOut className="h-5 w-5 shrink-0" />
-          Sign out
+          {t('nav.signOut')}
         </button>
       </div>
     </>
@@ -111,7 +115,7 @@ export function AppLayout() {
           type="button"
           className="absolute right-3 top-4 rounded-lg p-1 text-muted-foreground hover:bg-accent"
           onClick={() => setMobileOpen(false)}
-          aria-label="Close menu"
+          aria-label={t('nav.closeMenu')}
         >
           <X className="h-5 w-5" />
         </button>
@@ -124,12 +128,13 @@ export function AppLayout() {
             type="button"
             onClick={() => setMobileOpen(true)}
             className="rounded-lg p-2 text-muted-foreground hover:bg-accent"
-            aria-label="Open menu"
+            aria-label={t('nav.openMenu')}
           >
             <Menu className="h-5 w-5" />
           </button>
           <span className="text-sm font-semibold text-foreground">StudyBridge</span>
-          <ThemeToggle className="ml-auto h-9 w-9" />
+          <LanguageSelect compact className="ml-auto h-9" />
+          <ThemeToggle className="h-9 w-9" />
         </header>
 
         <main className="min-w-0 flex-1 overflow-auto">

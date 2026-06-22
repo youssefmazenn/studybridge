@@ -10,40 +10,42 @@ import {
   Sparkles,
 } from 'lucide-react'
 import { Link } from 'react-router-dom'
+import { LanguageSelect } from '../components/LanguageSelect'
 import { ThemeToggle } from '../components/ThemeToggle'
+import { useLanguage } from '../context/LanguageContext'
 import heroImage from '../assets/hero.png'
 
-const features = [
-  {
-    icon: FileText,
-    title: 'Course documents',
-    copy: 'Upload notes and PDFs, then keep every file attached to the course it belongs to.',
-    color: 'text-cyan-400',
-    bg: 'bg-cyan-950/60',
-  },
-  {
-    icon: Languages,
-    title: 'Translation workspace',
-    copy: 'Turn extracted document text into another language and keep the result beside the original.',
-    color: 'text-violet-400',
-    bg: 'bg-violet-950/60',
-  },
-  {
-    icon: BellRing,
-    title: 'Reminder engine',
-    copy: 'Track deadlines and let StudyBridge send email reminders when work needs attention.',
-    color: 'text-emerald-400',
-    bg: 'bg-emerald-950/60',
-  },
-]
-
-const timeline = [
-  { label: 'Upload lecture notes', meta: 'EWD', status: 'Complete' },
-  { label: 'Translate database chapter', meta: 'DBS', status: 'In progress' },
-  { label: 'Submit milestone report', meta: 'EWD', status: 'Due today' },
-]
-
 export function LandingPage() {
+  const { t } = useLanguage()
+  const features = [
+    {
+      icon: FileText,
+      title: t('landing.featureDocumentsTitle'),
+      copy: t('landing.featureDocumentsCopy'),
+      color: 'text-cyan-400',
+      bg: 'bg-cyan-950/60',
+    },
+    {
+      icon: Languages,
+      title: t('landing.featureTranslationTitle'),
+      copy: t('landing.featureTranslationCopy'),
+      color: 'text-violet-400',
+      bg: 'bg-violet-950/60',
+    },
+    {
+      icon: BellRing,
+      title: t('landing.featureReminderTitle'),
+      copy: t('landing.featureReminderCopy'),
+      color: 'text-emerald-400',
+      bg: 'bg-emerald-950/60',
+    },
+  ]
+  const timeline = [
+    { label: t('landing.timelineUpload'), meta: 'EWD', status: t('landing.timelineComplete') },
+    { label: t('landing.timelineTranslate'), meta: 'DBS', status: t('landing.timelineProgress') },
+    { label: t('landing.timelineSubmit'), meta: 'EWD', status: t('landing.timelineDueToday') },
+  ]
+
   return (
     <div className="min-h-screen bg-[#0d0f1a] text-foreground">
       <section className="relative isolate overflow-hidden bg-[#10131f] text-white">
@@ -65,18 +67,19 @@ export function LandingPage() {
             <span className="text-lg font-semibold">StudyBridge</span>
           </Link>
           <div className="flex items-center gap-2">
+            <LanguageSelect compact className="theme-hero-toggle border-white/20 bg-white/10 text-white hover:bg-white/15 hover:text-white" />
             <ThemeToggle className="theme-hero-toggle border-white/20 bg-white/10 text-white hover:bg-white/15 hover:text-white" />
             <Link
               to="/login"
               className="inline-flex items-center rounded-lg px-4 py-2 text-sm font-semibold text-slate-200 transition hover:bg-white/10 hover:text-white"
             >
-              Login
+              {t('common.signIn')}
             </Link>
             <Link
               to="/register"
               className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground shadow-lg shadow-cyan-950/25 transition hover:-translate-y-0.5 hover:opacity-90"
             >
-              Start
+              {t('common.create')}
               <ArrowRight className="h-4 w-4" />
             </Link>
           </div>
@@ -86,43 +89,42 @@ export function LandingPage() {
           <div className="landing-fade-up max-w-3xl">
             <div className="inline-flex items-center gap-2 rounded-lg border border-white/15 bg-white/10 px-3 py-2 text-sm font-medium text-cyan-100 shadow-xl shadow-cyan-950/20 backdrop-blur-md">
               <Sparkles className="h-4 w-4 text-amber-200" />
-              Built for multilingual, deadline-heavy semesters
+              {t('landing.badge')}
             </div>
             <h1 className="mt-7 max-w-3xl text-5xl font-semibold leading-[1.02] text-white md:text-7xl">
               StudyBridge
             </h1>
             <p className="mt-6 max-w-2xl text-lg leading-8 text-slate-200 md:text-xl">
-              A premium workspace for course documents, translation, assignments,
-              calendar planning, and reminder emails in one focused academic flow.
+              {t('landing.copy')}
             </p>
             <div className="mt-9 flex flex-col gap-3 sm:flex-row">
               <Link
                 to="/register"
                 className="inline-flex items-center justify-center gap-2 rounded-lg bg-cyan-300 px-6 py-3.5 text-sm font-bold text-slate-950 shadow-2xl shadow-cyan-950/40 transition hover:-translate-y-0.5 hover:bg-cyan-200"
               >
-                Create workspace
+                {t('landing.createWorkspace')}
                 <ArrowRight className="h-4 w-4" />
               </Link>
               <Link
                 to="/login"
                 className="inline-flex items-center justify-center rounded-lg border border-white/20 bg-white/10 px-6 py-3.5 text-sm font-bold text-white backdrop-blur-md transition hover:-translate-y-0.5 hover:bg-white/15"
               >
-                Open account
+                {t('landing.openAccount')}
               </Link>
             </div>
 
             <div className="mt-10 grid max-w-xl grid-cols-3 gap-3 text-sm text-slate-300">
               <div>
                 <p className="text-2xl font-semibold text-white">4</p>
-                <p className="mt-1">core modules</p>
+                <p className="mt-1">{t('landing.coreModules')}</p>
               </div>
               <div>
                 <p className="text-2xl font-semibold text-white">24h</p>
-                <p className="mt-1">JWT sessions</p>
+                <p className="mt-1">{t('landing.jwtSessions')}</p>
               </div>
               <div>
                 <p className="text-2xl font-semibold text-white">SMTP</p>
-                <p className="mt-1">reminders</p>
+                <p className="mt-1">{t('landing.reminders')}</p>
               </div>
             </div>
           </div>
@@ -132,18 +134,18 @@ export function LandingPage() {
               <div className="flex items-center justify-between border-b border-white/10 px-5 py-4">
                 <div>
                   <p className="text-xs font-semibold uppercase text-cyan-100">
-                    Semester cockpit
+                    {t('landing.semesterCockpit')}
                   </p>
                   <p className="mt-1 text-lg font-semibold">Enterprise Web Development</p>
                 </div>
                 <span className="rounded-lg bg-emerald-300 px-3 py-1 text-xs font-bold text-emerald-950">
-                  Live
+                  {t('landing.live')}
                 </span>
               </div>
 
               <div className="grid gap-4 p-5">
                 <div className="grid grid-cols-3 gap-3">
-                  {['Docs', 'Tasks', 'Alerts'].map((item, index) => (
+                  {[t('landing.docs'), t('landing.tasks'), t('landing.alerts')].map((item, index) => (
                     <div
                       key={item}
                       className="rounded-xl border border-white/10 bg-white/10 p-3"
@@ -158,7 +160,9 @@ export function LandingPage() {
 
                 <div className="rounded-xl bg-slate-950/45 p-4">
                   <div className="mb-3 flex items-center justify-between">
-                    <p className="text-sm font-semibold">Document intelligence</p>
+                    <p className="text-sm font-semibold">
+                      {t('landing.documentIntelligence')}
+                    </p>
                     <Languages className="h-4 w-4 text-violet-200" />
                   </div>
                   <div className="space-y-2">
@@ -197,7 +201,9 @@ export function LandingPage() {
                   <p className="text-xs font-semibold uppercase text-slate-400">
                     Today
                   </p>
-                  <p className="mt-1 text-lg font-semibold">Deadline rhythm</p>
+                  <p className="mt-1 text-lg font-semibold">
+                    {t('landing.deadlineRhythm')}
+                  </p>
                 </div>
                 <CalendarDays className="h-5 w-5 text-rose-400" />
               </div>
@@ -247,22 +253,23 @@ export function LandingPage() {
 
       <section className="mx-auto grid max-w-7xl gap-10 px-5 pb-20 md:grid-cols-[0.85fr_1fr] md:px-8">
         <div className="self-center">
-          <p className="text-sm font-bold uppercase text-cyan-400">Built for focus</p>
+          <p className="text-sm font-bold uppercase text-cyan-400">
+            {t('landing.focusEyebrow')}
+          </p>
           <h2 className="mt-4 text-3xl font-semibold leading-tight text-foreground md:text-5xl">
-            Everything a semester generates, organized before it becomes noise.
+            {t('landing.focusTitle')}
           </h2>
           <p className="mt-5 text-base leading-8 text-muted-foreground">
-            StudyBridge turns scattered files, due dates, and language barriers into
-            a single workflow that feels calm even when the semester does not.
+            {t('landing.focusCopy')}
           </p>
         </div>
 
         <div className="grid gap-4 sm:grid-cols-2">
           {[
-            ['Secure by default', 'JWT stays out of localStorage and API access is user-scoped.', Lock],
-            ['Real persistence', 'Production profile is ready for PostgreSQL deployments.', BookOpen],
-            ['Email reminders', 'Due reminders can trigger SMTP delivery on a schedule.', BellRing],
-            ['Calendar clarity', 'Assignments become a month view with clear daily context.', CalendarDays],
+            [t('landing.secureTitle'), t('landing.secureCopy'), Lock],
+            [t('landing.persistenceTitle'), t('landing.persistenceCopy'), BookOpen],
+            [t('landing.emailTitle'), t('landing.emailCopy'), BellRing],
+            [t('landing.calendarTitle'), t('landing.calendarCopy'), CalendarDays],
           ].map(([title, copy, Icon]) => (
             <div
               key={title as string}
@@ -279,16 +286,18 @@ export function LandingPage() {
       <section className="border-t border-white/8 bg-[#0b0d19] px-5 py-8 md:px-8">
         <div className="mx-auto flex max-w-7xl flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <p className="text-sm font-bold uppercase text-muted-foreground">Ready when you are</p>
+            <p className="text-sm font-bold uppercase text-muted-foreground">
+              {t('landing.ready')}
+            </p>
             <h2 className="mt-2 text-2xl font-semibold text-foreground">
-              Build your semester command center.
+              {t('landing.readyTitle')}
             </h2>
           </div>
           <Link
             to="/register"
             className="inline-flex items-center justify-center gap-2 rounded-lg bg-primary px-5 py-3 text-sm font-bold text-primary-foreground transition hover:-translate-y-0.5 hover:opacity-90"
           >
-            Get started
+            {t('landing.createWorkspace')}
             <ArrowRight className="h-4 w-4" />
           </Link>
         </div>

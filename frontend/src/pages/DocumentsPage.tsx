@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom'
 import * as courseApi from '../api/courseApi'
 import * as documentApi from '../api/documentApi'
 import { getErrorMessage } from '../api/errors'
+import { useLanguage } from '../context/LanguageContext'
 import { DocumentUploadModal } from '../components/DocumentUploadModal'
 import { ErrorAlert } from '../components/ErrorAlert'
 import { Spinner } from '../components/Spinner'
@@ -16,8 +17,8 @@ function formatFileSize(size: number): string {
   return `${(size / (1024 * 1024)).toFixed(1)} MB`
 }
 
-function formatDate(date: string): string {
-  return new Date(date).toLocaleDateString(undefined, {
+function formatDate(date: string, locale: string): string {
+  return new Date(date).toLocaleDateString(locale, {
     year: 'numeric',
     month: 'short',
     day: 'numeric',
@@ -25,6 +26,7 @@ function formatDate(date: string): string {
 }
 
 export function DocumentsPage() {
+  const { locale, t } = useLanguage()
   const [documents, setDocuments] = useState<StudyDocument[]>([])
   const [courses, setCourses] = useState<Course[]>([])
   const [search, setSearch] = useState('')
@@ -83,7 +85,7 @@ export function DocumentsPage() {
   }
 
   async function handleDelete(document: StudyDocument) {
-    if (!window.confirm(`Delete "${document.title}"?`)) return
+    if (!window.confirm(t('documents.deleteConfirm', { title: document.title }))) return
     setError('')
     try {
       await documentApi.deleteDocument(document.id)
@@ -106,9 +108,9 @@ export function DocumentsPage() {
     <div className="space-y-6 p-4 md:p-8">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-semibold text-foreground">Documents</h1>
+          <h1 className="text-2xl font-semibold text-foreground">{t('documents.title')}</h1>
           <p className="mt-1 text-muted-foreground">
-            Upload lecture material and connect it to your courses.
+            {t('documents.description')}
           </p>
         </div>
         <button
@@ -117,7 +119,7 @@ export function DocumentsPage() {
           className="inline-flex items-center justify-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground shadow-sm hover:opacity-90"
         >
           <Plus className="h-4 w-4" />
-          Upload document
+          {t('documents.upload')}
         </button>
       </div>
 
@@ -130,7 +132,7 @@ export function DocumentsPage() {
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="w-full rounded-lg border border-white/10 bg-accent py-2.5 pl-9 pr-3 text-sm text-foreground outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
-            placeholder="Search documents"
+            placeholder={t('documents.search')}
           />
         </label>
         <select
@@ -138,7 +140,7 @@ export function DocumentsPage() {
           onChange={(e) => setCourseFilter(e.target.value)}
           className="rounded-lg border border-white/10 bg-accent px-3 py-2.5 text-sm text-foreground outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
         >
-          <option value="">All courses</option>
+          <option value="">{t('documents.allCourses')}</option>
           {courses.map((course) => (
             <option key={course.id} value={course.id}>
               {course.courseCode}
@@ -148,13 +150,13 @@ export function DocumentsPage() {
       </div>
 
       {loading ? (
-        <Spinner label="Loading documents..." />
+        <Spinner label={t('documents.loading')} />
       ) : filtered.length === 0 ? (
         <div className="rounded-xl border border-dashed border-white/15 bg-muted p-12 text-center">
           <FileText className="mx-auto h-10 w-10 text-muted-foreground" />
-          <p className="mt-4 font-medium text-foreground">No documents found</p>
+          <p className="mt-4 font-medium text-foreground">{t('documents.noFound')}</p>
           <p className="mt-1 text-sm text-muted-foreground">
-            Upload a PDF or text file to start using document support.
+            {t('documents.emptyHint')}
           </p>
         </div>
       ) : (
@@ -181,7 +183,7 @@ export function DocumentsPage() {
                     type="button"
                     onClick={() => void handleDownload(document)}
                     className="rounded-lg p-2 text-muted-foreground hover:bg-accent hover:text-foreground"
-                    aria-label={`Download ${document.title}`}
+                    aria-label={t('documents.downloadAria', { title: document.title })}
                   >
                     <Download className="h-4 w-4" />
                   </button>
@@ -189,7 +191,7 @@ export function DocumentsPage() {
                     type="button"
                     onClick={() => void handleDelete(document)}
                     className="rounded-lg p-2 text-muted-foreground hover:bg-red-950/40 hover:text-destructive"
-                    aria-label={`Delete ${document.title}`}
+                    aria-label={t('documents.deleteAria', { title: document.title })}
                   >
                     <Trash2 className="h-4 w-4" />
                   </button>
@@ -197,23 +199,23 @@ export function DocumentsPage() {
               </div>
               <dl className="mt-4 grid grid-cols-2 gap-3 text-sm">
                 <div>
-                  <dt className="text-xs text-muted-foreground">Course</dt>
+                  <dt className="text-xs text-muted-foreground">{t('common.course')}</dt>
                   <dd className="font-medium text-foreground">{document.courseTitle}</dd>
                 </div>
                 <div>
-                  <dt className="text-xs text-muted-foreground">Uploaded</dt>
+                  <dt className="text-xs text-muted-foreground">{t('common.uploaded')}</dt>
                   <dd className="font-medium text-foreground">
-                    {formatDate(document.uploadDate)}
+                    {formatDate(document.uploadDate, locale)}
                   </dd>
                 </div>
                 <div>
-                  <dt className="text-xs text-muted-foreground">Language</dt>
+                  <dt className="text-xs text-muted-foreground">{t('common.language')}</dt>
                   <dd className="font-medium text-foreground">
                     {document.originalLanguage}
                   </dd>
                 </div>
                 <div>
-                  <dt className="text-xs text-muted-foreground">Size</dt>
+                  <dt className="text-xs text-muted-foreground">{t('common.size')}</dt>
                   <dd className="font-medium text-foreground">
                     {formatFileSize(document.fileSize)}
                   </dd>

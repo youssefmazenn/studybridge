@@ -6,6 +6,7 @@ import * as courseApi from '../api/courseApi'
 import * as documentApi from '../api/documentApi'
 import * as reminderApi from '../api/reminderApi'
 import { getErrorMessage } from '../api/errors'
+import { useLanguage } from '../context/LanguageContext'
 import {
   Card,
   CardContent,
@@ -17,7 +18,6 @@ import { ErrorAlert } from '../components/ErrorAlert'
 import { Spinner } from '../components/Spinner'
 import type { Assignment } from '../types/assignment'
 import type { Reminder } from '../types/reminder'
-import { REMINDER_TYPE_LABELS } from '../utils/reminderPresets'
 import type { DashboardDeadline } from '../types/dashboard'
 import type { Course } from '../types/course'
 import type { StudyDocument } from '../types/document'
@@ -39,14 +39,8 @@ function getDaysUntil(dateString: string): number {
   return Math.ceil((dueDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24))
 }
 
-function formatDaysUntil(daysUntil: number): string {
-  if (daysUntil < 0) return 'Overdue'
-  if (daysUntil === 0) return 'Today'
-  if (daysUntil === 1) return 'Tomorrow'
-  return `${daysUntil} days`
-}
-
 export function DashboardPage() {
+  const { locale, t } = useLanguage()
   const [courses, setCourses] = useState<Course[]>([])
   const [assignments, setAssignments] = useState<Assignment[]>([])
   const [documents, setDocuments] = useState<StudyDocument[]>([])
@@ -112,12 +106,19 @@ export function DashboardPage() {
     }
   }
 
+  function formatDaysUntil(daysUntil: number): string {
+    if (daysUntil < 0) return t('dashboard.overdue')
+    if (daysUntil === 0) return t('common.today')
+    if (daysUntil === 1) return t('common.tomorrow')
+    return t('dashboard.days', { count: daysUntil })
+  }
+
   return (
     <div className="space-y-6 p-4 md:p-8">
       <div>
-        <h1 className="text-2xl font-semibold text-foreground">Dashboard</h1>
+        <h1 className="text-2xl font-semibold text-foreground">{t('dashboard.title')}</h1>
         <p className="mt-1 text-muted-foreground">
-          Welcome back! Here&apos;s your study overview.
+          {t('dashboard.welcome')}
         </p>
       </div>
 
@@ -130,7 +131,7 @@ export function DashboardPage() {
               <BookOpen className="h-6 w-6 text-primary" />
             </div>
             <div>
-              <p className="text-sm text-muted-foreground">Active Courses</p>
+              <p className="text-sm text-muted-foreground">{t('dashboard.activeCourses')}</p>
               <p className="text-2xl font-semibold text-foreground">
                 {loading ? '—' : courses.length}
               </p>
@@ -143,7 +144,7 @@ export function DashboardPage() {
               <FileText className="h-6 w-6 text-primary" />
             </div>
             <div>
-              <p className="text-sm text-muted-foreground">Documents</p>
+              <p className="text-sm text-muted-foreground">{t('dashboard.documents')}</p>
               <p className="text-2xl font-semibold text-foreground">
                 {loading ? '—' : documents.length}
               </p>
@@ -156,7 +157,7 @@ export function DashboardPage() {
               <Clock className="h-6 w-6 text-orange-400" />
             </div>
             <div>
-              <p className="text-sm text-muted-foreground">Due Soon</p>
+              <p className="text-sm text-muted-foreground">{t('dashboard.dueSoon')}</p>
               <p className="text-2xl font-semibold text-foreground">
                 {loading ? '—' : pendingCount}
               </p>
@@ -169,7 +170,7 @@ export function DashboardPage() {
               <Calendar className="h-6 w-6 text-emerald-400" />
             </div>
             <div>
-              <p className="text-sm text-muted-foreground">Completed</p>
+              <p className="text-sm text-muted-foreground">{t('dashboard.completed')}</p>
               <p className="text-2xl font-semibold text-foreground">
                 {loading ? '—' : completedCount}
               </p>
@@ -183,7 +184,7 @@ export function DashboardPage() {
           <CardHeader>
             <div className="flex items-center gap-2">
               <Bell className="h-5 w-5 text-amber-400" />
-              <CardTitle>Reminders due</CardTitle>
+              <CardTitle>{t('dashboard.remindersDue')}</CardTitle>
             </div>
           </CardHeader>
           <CardContent>
@@ -196,10 +197,10 @@ export function DashboardPage() {
                   <div className="min-w-0">
                     <p className="font-medium text-foreground">{r.assignmentTitle}</p>
                     <p className="text-sm text-muted-foreground">
-                      {r.courseCode} · {REMINDER_TYPE_LABELS[r.reminderType]}
+                      {r.courseCode} · {t(`reminderType.${r.reminderType}`)}
                     </p>
                     <p className="text-xs text-muted-foreground">
-                      {new Date(r.remindAt).toLocaleString()}
+                      {new Date(r.remindAt).toLocaleString(locale)}
                     </p>
                   </div>
                   <button
@@ -207,7 +208,7 @@ export function DashboardPage() {
                     onClick={() => void dismissReminder(r.id)}
                     className="shrink-0 rounded-lg bg-primary px-3 py-1.5 text-xs font-semibold text-primary-foreground hover:opacity-90"
                   >
-                    Dismiss
+                    {t('common.dismiss')}
                   </button>
                 </li>
               ))}
@@ -220,23 +221,23 @@ export function DashboardPage() {
         <Card>
           <CardHeader>
             <div className="flex items-center justify-between">
-              <CardTitle>Upcoming Deadlines</CardTitle>
+              <CardTitle>{t('dashboard.upcomingDeadlines')}</CardTitle>
               <Link
                 to="/assignments"
                 className="text-sm font-medium text-primary hover:underline"
               >
-                View all
+                {t('common.viewAll')}
               </Link>
             </div>
           </CardHeader>
           <CardContent>
             {loading ? (
-              <Spinner label="Loading deadlines…" />
+              <Spinner label={t('dashboard.loadingDeadlines')} />
             ) : (
               <div className="space-y-3">
                 {pendingDeadlines.length === 0 ? (
                   <p className="text-sm text-muted-foreground">
-                    No upcoming deadlines.
+                    {t('dashboard.noUpcomingDeadlines')}
                   </p>
                 ) : (
                   pendingDeadlines.map((assignment) => {
@@ -273,20 +274,20 @@ export function DashboardPage() {
         <Card>
           <CardHeader>
             <div className="flex items-center justify-between">
-              <CardTitle>Recent Documents</CardTitle>
+              <CardTitle>{t('dashboard.recentDocuments')}</CardTitle>
               <Link
                 to="/documents"
                 className="text-sm font-medium text-primary hover:underline"
               >
-                View all
+                {t('common.viewAll')}
               </Link>
             </div>
           </CardHeader>
           <CardContent>
             {loading ? (
-              <Spinner label="Loading documents…" />
+              <Spinner label={t('dashboard.loadingDocuments')} />
             ) : recentDocuments.length === 0 ? (
-              <p className="text-sm text-muted-foreground">No documents uploaded.</p>
+              <p className="text-sm text-muted-foreground">{t('dashboard.noDocuments')}</p>
             ) : (
               <div className="space-y-3">
                 {recentDocuments.map((doc) => (
@@ -304,7 +305,7 @@ export function DashboardPage() {
                           {doc.title}
                         </p>
                         <p className="text-sm text-muted-foreground">
-                          {doc.courseCode} · {new Date(doc.uploadDate).toLocaleDateString()}
+                          {doc.courseCode} · {new Date(doc.uploadDate).toLocaleDateString(locale)}
                         </p>
                       </div>
                     </div>
@@ -319,26 +320,26 @@ export function DashboardPage() {
       <Card>
         <CardHeader>
           <div className="flex items-center justify-between">
-            <CardTitle>Active Courses</CardTitle>
+            <CardTitle>{t('dashboard.activeCoursesList')}</CardTitle>
             <Link
               to="/courses"
               className="text-sm font-medium text-primary hover:underline"
             >
-              View all
+              {t('common.viewAll')}
             </Link>
           </div>
         </CardHeader>
         <CardContent>
           {loading ? (
-            <Spinner label="Loading courses…" />
+            <Spinner label={t('dashboard.loadingCourses')} />
           ) : dashboardCourses.length === 0 ? (
             <div className="rounded-lg bg-accent p-6 text-center">
-              <p className="text-sm text-muted-foreground">No courses yet.</p>
+              <p className="text-sm text-muted-foreground">{t('dashboard.noCourses')}</p>
               <Link
                 to="/courses"
                 className="mt-2 inline-block text-sm font-medium text-primary hover:underline"
               >
-                Add your first course
+                {t('dashboard.addFirstCourse')}
               </Link>
             </div>
           ) : (
@@ -361,17 +362,17 @@ export function DashboardPage() {
       <div>
         <div className="mb-4 flex items-center justify-between">
           <h2 className="text-lg font-semibold text-foreground">
-            Assignment Calendar
+            {t('dashboard.assignmentCalendar')}
           </h2>
           <Link
             to="/calendar"
             className="text-sm font-medium text-primary hover:underline"
           >
-            View full calendar
+            {t('dashboard.viewFullCalendar')}
           </Link>
         </div>
         {loading ? (
-          <Spinner label="Loading calendar…" />
+          <Spinner label={t('dashboard.loadingCalendar')} />
         ) : (
           <CalendarComponent assignments={calendarAssignments} compact />
         )}

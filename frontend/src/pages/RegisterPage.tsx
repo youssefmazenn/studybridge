@@ -12,31 +12,33 @@ import {
 } from 'lucide-react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
+import { useLanguage } from '../context/LanguageContext'
 import { getErrorMessage } from '../api/errors'
 import { ErrorAlert } from '../components/ErrorAlert'
+import { LanguageSelect } from '../components/LanguageSelect'
 import { Spinner } from '../components/Spinner'
 import { ThemeToggle } from '../components/ThemeToggle'
 import heroImage from '../assets/hero.png'
-
-const benefits = [
-  'Course workspace with assignments and documents',
-  'Translation and explanation tools for study material',
-  'Calendar overview with email reminder support',
-]
+import type { Language } from '../i18n/translations'
 
 const inputClass =
   'w-full rounded-lg border border-white/10 bg-white/5 py-3 pl-10 pr-3 text-foreground outline-none ring-cyan-500/25 transition focus:border-primary focus:ring-2 placeholder:text-muted-foreground'
 
 export function RegisterPage() {
   const { register, isAuthenticated } = useAuth()
+  const { language, setLanguage, t } = useLanguage()
   const navigate = useNavigate()
 
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
-  const [preferredLanguage, setPreferredLanguage] = useState('English')
   const [error, setError] = useState('')
   const [submitting, setSubmitting] = useState(false)
+  const benefits = [
+    t('register.benefitWorkspace'),
+    t('register.benefitTranslation'),
+    t('register.benefitCalendar'),
+  ]
 
   useEffect(() => {
     if (isAuthenticated) {
@@ -53,7 +55,7 @@ export function RegisterPage() {
         name: name.trim(),
         email: email.trim(),
         password,
-        preferredLanguage: preferredLanguage.trim(),
+        preferredLanguage: language === 'de' ? 'German' : 'English',
       })
       navigate('/login', { replace: true, state: { registered: true } })
     } catch (err) {
@@ -83,20 +85,22 @@ export function RegisterPage() {
               />
               <span className="text-lg font-semibold">StudyBridge</span>
             </Link>
-            <ThemeToggle className="theme-hero-toggle border-white/20 bg-white/10 text-white hover:bg-white/15 hover:text-white" />
+            <div className="flex items-center gap-2">
+              <LanguageSelect compact className="theme-hero-toggle border-white/20 bg-white/10 text-white hover:bg-white/15 hover:text-white" />
+              <ThemeToggle className="theme-hero-toggle border-white/20 bg-white/10 text-white hover:bg-white/15 hover:text-white" />
+            </div>
           </div>
 
           <div className="landing-fade-up max-w-2xl pb-10">
             <div className="inline-flex items-center gap-2 rounded-lg border border-white/15 bg-white/10 px-3 py-2 text-sm font-semibold text-violet-200 backdrop-blur-md">
               <Sparkles className="h-4 w-4 text-amber-300" />
-              Start with a clean semester system
+              {t('register.heroBadge')}
             </div>
             <h1 className="mt-6 text-5xl font-semibold leading-tight">
-              Build a workspace before the semester gets loud.
+              {t('register.heroTitle')}
             </h1>
             <p className="mt-5 max-w-xl text-lg leading-8 text-slate-300">
-              Create your StudyBridge account and connect courses, materials,
-              deadlines, translations, and reminder emails from day one.
+              {t('register.heroCopy')}
             </p>
 
             <div className="mt-9 grid max-w-xl gap-3">
@@ -114,11 +118,15 @@ export function RegisterPage() {
             <div className="mt-8 flex max-w-md gap-3">
               <div className="rounded-xl bg-white/10 p-4 backdrop-blur-xl">
                 <Languages className="h-5 w-5 text-violet-300" />
-                <p className="mt-3 text-sm font-semibold">Multilingual notes</p>
+                <p className="mt-3 text-sm font-semibold">
+                  {t('register.multilingualNotes')}
+                </p>
               </div>
               <div className="rounded-xl bg-white/10 p-4 backdrop-blur-xl">
                 <BellRing className="h-5 w-5 text-cyan-300" />
-                <p className="mt-3 text-sm font-semibold">Smart reminders</p>
+                <p className="mt-3 text-sm font-semibold">
+                  {t('register.smartReminders')}
+                </p>
               </div>
             </div>
           </div>
@@ -133,7 +141,10 @@ export function RegisterPage() {
               <ArrowLeft className="h-4 w-4" />
               StudyBridge
             </Link>
-            <ThemeToggle className="theme-hero-toggle mb-4 border-white/20 bg-white/10 text-white hover:bg-white/15 hover:text-white lg:hidden" />
+            <div className="mb-4 flex gap-2 lg:hidden">
+              <LanguageSelect compact className="theme-hero-toggle border-white/20 bg-white/10 text-white hover:bg-white/15 hover:text-white" />
+              <ThemeToggle className="theme-hero-toggle border-white/20 bg-white/10 text-white hover:bg-white/15 hover:text-white" />
+            </div>
 
             <div className="mb-8 flex items-center gap-3 lg:hidden">
               <img
@@ -150,13 +161,13 @@ export function RegisterPage() {
                   <UserRound className="h-5 w-5 text-primary" />
                 </div>
                 <p className="text-sm font-bold uppercase text-cyan-400">
-                  New workspace
+                  {t('register.newWorkspace')}
                 </p>
                 <h1 className="mt-2 text-3xl font-semibold text-foreground">
-                  Create account
+                  {t('register.title')}
                 </h1>
                 <p className="mt-2 text-sm leading-6 text-muted-foreground">
-                  Register to organize courses, documents, assignments, and reminders.
+                  {t('register.description')}
                 </p>
               </div>
 
@@ -168,7 +179,7 @@ export function RegisterPage() {
                     htmlFor="name"
                     className="mb-1.5 block text-sm font-semibold text-slate-300"
                   >
-                    Full name
+                    {t('register.fullName')}
                   </label>
                   <div className="relative">
                     <UserRound className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-500" />
@@ -191,7 +202,7 @@ export function RegisterPage() {
                     htmlFor="reg-email"
                     className="mb-1.5 block text-sm font-semibold text-slate-300"
                   >
-                    Email
+                    {t('common.email')}
                   </label>
                   <div className="relative">
                     <Mail className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-500" />
@@ -214,7 +225,7 @@ export function RegisterPage() {
                     htmlFor="reg-password"
                     className="mb-1.5 block text-sm font-semibold text-slate-300"
                   >
-                    Password
+                    {t('auth.password')}
                   </label>
                   <div className="relative">
                     <Lock className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-500" />
@@ -228,52 +239,54 @@ export function RegisterPage() {
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       className={inputClass}
-                      placeholder="At least 8 characters"
+                      placeholder={t('register.passwordPlaceholder')}
                     />
                   </div>
                 </div>
 
                 <div>
                   <label
-                    htmlFor="language"
+                    htmlFor="preferredLanguage"
                     className="mb-1.5 block text-sm font-semibold text-slate-300"
                   >
-                    Preferred language
+                    {t('register.preferredLanguage')}
                   </label>
                   <div className="relative">
                     <Languages className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-500" />
-                    <input
-                      id="language"
+                    <select
+                      id="preferredLanguage"
                       name="preferredLanguage"
-                      type="text"
                       required
-                      value={preferredLanguage}
-                      onChange={(e) => setPreferredLanguage(e.target.value)}
+                      value={language}
+                      onChange={(e) => setLanguage(e.target.value as Language)}
                       className={inputClass}
-                    />
+                    >
+                      <option value="en">{t('language.english')}</option>
+                      <option value="de">{t('language.german')}</option>
+                    </select>
                   </div>
                 </div>
 
                 {submitting ? (
-                  <Spinner label="Creating your account…" />
+                  <Spinner label={t('register.creating')} />
                 ) : (
                   <button
                     type="submit"
                     className="mt-2 inline-flex w-full items-center justify-center gap-2 rounded-lg bg-primary px-5 py-3 text-sm font-bold text-primary-foreground shadow-xl shadow-primary/20 transition hover:-translate-y-0.5 hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-cyan-400 focus:ring-offset-2 focus:ring-offset-transparent"
                   >
-                    Register
+                    {t('common.register')}
                     <ArrowRight className="h-4 w-4" />
                   </button>
                 )}
               </form>
 
               <p className="mt-8 text-center text-sm text-muted-foreground">
-                Already have an account?{' '}
+                {t('register.alreadyHaveAccount')}{' '}
                 <Link
                   to="/login"
                   className="font-bold text-cyan-400 hover:text-cyan-300"
                 >
-                  Sign in
+                  {t('common.signIn')}
                 </Link>
               </p>
             </div>
