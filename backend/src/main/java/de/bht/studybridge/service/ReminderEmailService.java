@@ -7,9 +7,6 @@ import de.bht.studybridge.model.User;
 import java.time.format.DateTimeFormatter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.mail.MailException;
-import org.springframework.mail.SimpleMailMessage;
-import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -19,17 +16,28 @@ public class ReminderEmailService {
     private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("dd MMM yyyy");
     private static final DateTimeFormatter DATE_TIME_FORMAT = DateTimeFormatter.ofPattern("dd MMM yyyy HH:mm");
 
-    private final JavaMailSender mailSender;
+    private final EmailDeliveryService emailDeliveryService;
     private final boolean enabled;
     private final String fromAddress;
+    private final String provider;
+    private final String resendApiKey;
+    private final String resendBaseUrl;
 
     public ReminderEmailService(
-            JavaMailSender mailSender,
+            EmailDeliveryService emailDeliveryService,
             @Value("${app.reminders.email.enabled:false}") boolean enabled,
-            @Value("${app.reminders.email.from:no-reply@studybridge.local}") String fromAddress) {
-        this.mailSender = mailSender;
+            @Value("${app.reminders.email.from:}") String fromAddress,
+            @Value("${app.email-verification.from:no-reply@studybridge.local}") String fallbackFromAddress,
+            @Value("${app.reminders.email.provider:}") String provider,
+            @Value("${app.email-verification.provider:smtp}") String fallbackProvider,
+            @Value("${app.reminders.email.resend.api-key:}") String resendApiKey,
+            @Value("${app.reminders.email.resend.base-url:https://api.resend.com/emails}") String resendBaseUrl) {
+        this.emailDeliveryService = emailDeliveryService;
         this.enabled = enabled;
-        this.fromAddress = fromAddress;
+        this.fromAddress = defaultIfBlank(fromAddress, fallbackFromAddress);
+        this.provider = defaultIfBlank(provider, fallbackProvider);
+        this.resendApiKey = resendApiKey;
+        this.resendBaseUrl = resendBaseUrl;
     }
 
     public boolean isEnabled() {
@@ -41,11 +49,8 @@ public class ReminderEmailService {
         Course course = assignment.getCourse();
         User user = course.getUser();
 
-        SimpleMailMessage message = new SimpleMailMessage();
-        message.setFrom(fromAddress);
-        message.setTo(user.getEmail());
-        message.setSubject("StudyBridge reminder: " + assignment.getTitle());
-        message.setText("""
+        String subject = "StudyBridge reminder: " + assignment.getTitle();
+        String text = """
                 Hi %s,
 
                 This is your StudyBridge reminder for:
@@ -62,12 +67,24 @@ public class ReminderEmailService {
                 course.getTitle(),
                 course.getCourseCode(),
                 assignment.getDueDate().format(DATE_FORMAT),
-                reminder.getRemindAt().format(DATE_TIME_FORMAT)).trim());
+                reminder.getRemindAt().format(DATE_TIME_FORMAT)).trim();
 
-        try {
-            mailSender.send(message);
-        } catch (MailException e) {
-            throw e;
+        emailDeliveryService.send(new OutboundEmail(
+                provider,
+                fromAddress,
+                user.getEmail(),
+                subject,
+                text,
+                resendApiKey,
+                resendBaseUrl,
+                "reminder email",
+                "Could not send reminder email"));
+    }
+
+    private String defaultIfBlank(String value, String fallback) {
+        if (value == null || value.isBlank()) {
+            return fallback;
         }
+        return value;
     }
 }

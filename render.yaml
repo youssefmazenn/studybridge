@@ -41,7 +41,10 @@ services:
         sync: false
       - key: RESEND_API_KEY
         sync: false
-      # SMTP settings used by email verification and optional reminder emails:
+      # Email reminders inherit EMAIL_VERIFICATION_PROVIDER and RESEND_API_KEY unless overridden:
+      - key: REMINDER_EMAIL_ENABLED
+        value: "false"
+      # SMTP settings used when an email feature uses the smtp provider:
       - key: MAIL_HOST
         sync: false
       - key: MAIL_PORT

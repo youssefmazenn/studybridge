@@ -1,5 +1,6 @@
 package de.bht.studybridge.service;
 
+import de.bht.studybridge.exception.EmailDeliveryException;
 import de.bht.studybridge.model.Reminder;
 import de.bht.studybridge.repository.ReminderRepository;
 import java.time.LocalDateTime;
@@ -44,7 +45,7 @@ public class ReminderEmailScheduler {
             try {
                 reminderEmailService.sendReminder(reminder);
                 reminder.setSent(true);
-            } catch (MailException e) {
+            } catch (EmailDeliveryException | MailException e) {
                 log.warn("Could not send reminder email for reminder {}", reminder.getId(), e);
             }
         }
