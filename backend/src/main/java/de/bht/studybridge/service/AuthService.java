@@ -18,7 +18,7 @@ public class AuthService {
         this.jwtService = jwtService;
     }
 
-    @Transactional(readOnly = true)
+    @Transactional
     public LoginResponse loginWithBasicCredentials(String email, String password) {
         String normalizedEmail = email.trim().toLowerCase();
         User user = userService
@@ -30,9 +30,16 @@ public class AuthService {
         if (!userService.passwordMatches(user, password)) {
             throw new InvalidCredentialsException("Invalid email or password");
         }
+        userService.promoteIfConfiguredAdmin(user);
         String token = jwtService.generateToken(user);
-        UserResponse userResponse =
-                new UserResponse(user.getId(), user.getName(), user.getEmail(), user.getPreferredLanguage());
+        UserResponse userResponse = new UserResponse(
+                user.getId(),
+                user.getName(),
+                user.getEmail(),
+                user.getPreferredLanguage(),
+                user.getRole(),
+                user.isEnabled(),
+                user.getCreatedAt());
         LoginResponse response = new LoginResponse();
         response.setAccessToken(token);
         response.setTokenType("Bearer");

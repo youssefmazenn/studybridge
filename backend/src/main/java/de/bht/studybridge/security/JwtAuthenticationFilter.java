@@ -1,14 +1,18 @@
 package de.bht.studybridge.security;
 
+import de.bht.studybridge.repository.UserRepository;
 import de.bht.studybridge.service.JwtService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.List;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.lang.NonNull;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -17,10 +21,13 @@ import org.springframework.web.filter.OncePerRequestFilter;
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtService jwtService;
+    private final UserRepository userRepository;
     private final ApiErrorWriter apiErrorWriter;
 
-    public JwtAuthenticationFilter(JwtService jwtService, ApiErrorWriter apiErrorWriter) {
+    public JwtAuthenticationFilter(
+            JwtService jwtService, UserRepository userRepository, ApiErrorWriter apiErrorWriter) {
         this.jwtService = jwtService;
+        this.userRepository = userRepository;
         this.apiErrorWriter = apiErrorWriter;
     }
 
@@ -51,7 +58,17 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                     request, response, HttpStatus.UNAUTHORIZED, "Invalid or expired token");
             return;
         }
-        SecurityContextHolder.getContext().setAuthentication(authentication);
+        var user = userRepository.findByEmail(authentication.getName());
+        if (user.isEmpty() || !user.get().isEnabled()) {
+            apiErrorWriter.writeJson(
+                    request, response, HttpStatus.UNAUTHORIZED, "Invalid or expired token");
+            return;
+        }
+        var currentAuthentication = new UsernamePasswordAuthenticationToken(
+                user.get().getEmail(),
+                null,
+                List.of(new SimpleGrantedAuthority("ROLE_" + user.get().getRole().name())));
+        SecurityContextHolder.getContext().setAuthentication(currentAuthentication);
         filterChain.doFilter(request, response);
     }
 }

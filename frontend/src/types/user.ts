@@ -1,8 +1,13 @@
+export type UserRole = 'USER' | 'ADMIN'
+
 export type UserProfile = {
   id: number
   name: string
   email: string
   preferredLanguage: string
+  role: UserRole
+  enabled: boolean
+  createdAt: string | null
 }
 
 export type LoginResponse = {

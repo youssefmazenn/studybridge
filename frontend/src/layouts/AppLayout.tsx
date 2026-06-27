@@ -8,6 +8,7 @@ import {
   LayoutDashboard,
   LogOut,
   Menu,
+  Users,
   X,
 } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
@@ -21,6 +22,10 @@ const navItems = [
   { to: '/documents', labelKey: 'nav.documents', icon: FileText },
   { to: '/assignments', labelKey: 'nav.assignments', icon: ClipboardList },
   { to: '/calendar', labelKey: 'nav.calendar', icon: Calendar },
+] as const
+
+const adminNavItems = [
+  { to: '/admin/users', labelKey: 'nav.adminUsers', icon: Users },
 ] as const
 
 function navLinkClass({ isActive }: { isActive: boolean }) {
@@ -69,6 +74,19 @@ export function AppLayout() {
             {t(labelKey)}
           </NavLink>
         ))}
+        {user?.role === 'ADMIN'
+          ? adminNavItems.map(({ to, labelKey, icon: Icon }) => (
+              <NavLink
+                key={to}
+                to={to}
+                className={navLinkClass}
+                onClick={() => setMobileOpen(false)}
+              >
+                <Icon className="h-5 w-5 shrink-0" />
+                {t(labelKey)}
+              </NavLink>
+            ))
+          : null}
       </nav>
 
       <div className="border-t border-sidebar-border p-3">

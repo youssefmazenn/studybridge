@@ -1,6 +1,8 @@
 import { Navigate, Route, Routes } from 'react-router-dom'
+import { AdminRoute } from '../components/AdminRoute'
 import { ProtectedRoute } from '../components/ProtectedRoute'
 import { AppLayout } from '../layouts/AppLayout'
+import { AdminUsersPage } from '../pages/AdminUsersPage'
 import { AssignmentsPage } from '../pages/AssignmentsPage'
 import { CalendarPage } from '../pages/CalendarPage'
 import { CoursesPage } from '../pages/CoursesPage'
@@ -26,6 +28,9 @@ export function AppRoutes() {
           <Route path="/documents" element={<DocumentsPage />} />
           <Route path="/documents/:id" element={<DocumentDetailPage />} />
           <Route path="/calendar" element={<CalendarPage />} />
+          <Route element={<AdminRoute />}>
+            <Route path="/admin/users" element={<AdminUsersPage />} />
+          </Route>
         </Route>
       </Route>
 

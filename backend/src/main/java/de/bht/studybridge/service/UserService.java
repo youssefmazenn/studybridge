@@ -2,13 +2,20 @@ package de.bht.studybridge.service;
 
 import de.bht.studybridge.dto.RegisterRequest;
 import de.bht.studybridge.dto.UserResponse;
+import de.bht.studybridge.exception.BadRequestException;
 import de.bht.studybridge.exception.DuplicateEmailException;
 import de.bht.studybridge.exception.ResourceNotFoundException;
+import de.bht.studybridge.model.Document;
 import de.bht.studybridge.model.Role;
 import de.bht.studybridge.model.User;
+import de.bht.studybridge.repository.CourseRepository;
+import de.bht.studybridge.repository.DocumentContentRepository;
+import de.bht.studybridge.repository.DocumentRepository;
 import de.bht.studybridge.repository.UserRepository;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -19,10 +26,24 @@ import org.springframework.transaction.annotation.Transactional;
 public class UserService {
 
     private final UserRepository userRepository;
+    private final CourseRepository courseRepository;
+    private final DocumentRepository documentRepository;
+    private final DocumentContentRepository documentContentRepository;
     private final PasswordEncoder passwordEncoder;
 
-    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
+    @Value("${app.admin.emails:}")
+    private String adminEmails;
+
+    public UserService(
+            UserRepository userRepository,
+            CourseRepository courseRepository,
+            DocumentRepository documentRepository,
+            DocumentContentRepository documentContentRepository,
+            PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
+        this.courseRepository = courseRepository;
+        this.documentRepository = documentRepository;
+        this.documentContentRepository = documentContentRepository;
         this.passwordEncoder = passwordEncoder;
     }
 
@@ -37,7 +58,7 @@ public class UserService {
         user.setEmail(normalizedEmail);
         user.setPasswordHash(passwordEncoder.encode(request.getPassword()));
         user.setPreferredLanguage(request.getPreferredLanguage().trim());
-        user.setRole(Role.USER);
+        user.setRole(isConfiguredAdminEmail(normalizedEmail) ? Role.ADMIN : Role.USER);
         user.setEnabled(true);
         user.setCreatedAt(LocalDateTime.now());
         User saved = userRepository.save(user);
@@ -62,6 +83,43 @@ public class UserService {
     }
 
     @Transactional(readOnly = true)
+    public List<UserResponse> listUsersForAdmin() {
+        return userRepository.findAllByOrderByCreatedAtDesc().stream()
+                .map(this::toResponse)
+                .toList();
+    }
+
+    @Transactional
+    public UserResponse updateUserEnabledForAdmin(Long userId, boolean enabled) {
+        User currentUser = getCurrentUser();
+        if (currentUser.getId().equals(userId) && !enabled) {
+            throw new BadRequestException("Admins cannot deactivate their own account");
+        }
+        User user = userRepository
+                .findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+        user.setEnabled(enabled);
+        return toResponse(user);
+    }
+
+    @Transactional
+    public void deleteUserForAdmin(Long userId) {
+        User currentUser = getCurrentUser();
+        if (currentUser.getId().equals(userId)) {
+            throw new BadRequestException("Admins cannot delete their own account");
+        }
+        User user = userRepository
+                .findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+        List<Long> documentIds = documentRepository.findAllByCourse_User_IdOrderByUploadDateDesc(userId).stream()
+                .map(Document::getId)
+                .toList();
+        documentContentRepository.deleteAllByIdInBatch(documentIds);
+        courseRepository.deleteAll(courseRepository.findAllByUserIdOrderByCreatedAtDesc(userId));
+        userRepository.delete(user);
+    }
+
+    @Transactional(readOnly = true)
     public Optional<User> findByEmail(String email) {
         return userRepository.findByEmail(email);
     }
@@ -70,8 +128,27 @@ public class UserService {
         return passwordEncoder.matches(rawPassword, user.getPasswordHash());
     }
 
+    public void promoteIfConfiguredAdmin(User user) {
+        if (user.getRole() != Role.ADMIN && isConfiguredAdminEmail(user.getEmail())) {
+            user.setRole(Role.ADMIN);
+        }
+    }
+
+    private boolean isConfiguredAdminEmail(String email) {
+        return List.of(adminEmails.split(",")).stream()
+                .map(String::trim)
+                .map(String::toLowerCase)
+                .anyMatch(email::equals);
+    }
+
     private UserResponse toResponse(User user) {
         return new UserResponse(
-                user.getId(), user.getName(), user.getEmail(), user.getPreferredLanguage());
+                user.getId(),
+                user.getName(),
+                user.getEmail(),
+                user.getPreferredLanguage(),
+                user.getRole(),
+                user.isEnabled(),
+                user.getCreatedAt());
     }
 }

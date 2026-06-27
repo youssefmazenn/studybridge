@@ -28,6 +28,9 @@ services:
         sync: false
       - key: DEEPL_API_KEY
         sync: false
+      # Comma-separated emails that receive ADMIN role on login/registration:
+      - key: ADMIN_EMAILS
+        sync: false
       # Comma-separated allowed origins = your Vercel frontend URL (set after the frontend is live):
       - key: CORS_ORIGINS
         sync: false
