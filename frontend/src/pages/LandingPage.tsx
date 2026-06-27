@@ -57,27 +57,27 @@ export function LandingPage() {
         <div className="absolute inset-0 bg-[linear-gradient(115deg,rgba(16,19,31,0.98),rgba(16,19,31,0.72)_48%,rgba(37,75,98,0.64))]" />
         <div className="absolute inset-x-0 bottom-0 h-28 bg-[linear-gradient(180deg,rgba(13,15,26,0),#0d0f1a)]" />
 
-        <header className="relative z-10 mx-auto flex max-w-7xl items-center justify-between px-5 py-5 md:px-8">
-          <Link to="/" className="flex items-center gap-3">
+        <header className="relative z-10 mx-auto flex max-w-7xl flex-col gap-3 px-5 py-5 sm:flex-row sm:items-center sm:justify-between md:px-8">
+          <Link to="/" className="flex min-w-0 items-center gap-3">
             <img
               src="/logo.png"
               alt="StudyBridge logo"
-              className="h-10 w-10 rounded-lg object-cover shadow-lg shadow-cyan-950/30"
+              className="h-10 w-10 shrink-0 rounded-lg object-cover shadow-lg shadow-cyan-950/30"
             />
-            <span className="text-lg font-semibold">StudyBridge</span>
+            <span className="truncate text-lg font-semibold">StudyBridge</span>
           </Link>
-          <div className="flex items-center gap-2">
-            <LanguageSelect compact className="theme-hero-toggle border-white/20 bg-white/10 text-white hover:bg-white/15 hover:text-white" />
-            <ThemeToggle className="theme-hero-toggle border-white/20 bg-white/10 text-white hover:bg-white/15 hover:text-white" />
+          <div className="-mx-1 flex w-full items-center gap-2 overflow-x-auto px-1 pb-1 sm:mx-0 sm:w-auto sm:overflow-visible sm:p-0">
+            <LanguageSelect compact className="theme-hero-toggle shrink-0 border-white/20 bg-white/10 text-white hover:bg-white/15 hover:text-white" />
+            <ThemeToggle className="theme-hero-toggle shrink-0 border-white/20 bg-white/10 text-white hover:bg-white/15 hover:text-white" />
             <Link
               to="/login"
-              className="inline-flex items-center rounded-lg px-4 py-2 text-sm font-semibold text-slate-200 transition hover:bg-white/10 hover:text-white"
+              className="inline-flex shrink-0 items-center rounded-lg px-3 py-2 text-sm font-semibold text-slate-200 transition hover:bg-white/10 hover:text-white sm:px-4"
             >
               {t('common.signIn')}
             </Link>
             <Link
               to="/register"
-              className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground shadow-lg shadow-cyan-950/25 transition hover:-translate-y-0.5 hover:opacity-90"
+              className="inline-flex shrink-0 items-center gap-2 whitespace-nowrap rounded-lg bg-primary px-3 py-2 text-sm font-semibold text-primary-foreground shadow-lg shadow-cyan-950/25 transition hover:-translate-y-0.5 hover:opacity-90 sm:px-4"
             >
               {t('common.create')}
               <ArrowRight className="h-4 w-4" />
