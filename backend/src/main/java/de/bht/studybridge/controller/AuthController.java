@@ -1,10 +1,12 @@
 package de.bht.studybridge.controller;
 
+import de.bht.studybridge.dto.EmailVerificationResendRequest;
 import de.bht.studybridge.dto.LoginResponse;
 import de.bht.studybridge.dto.RegisterRequest;
 import de.bht.studybridge.dto.UserResponse;
 import de.bht.studybridge.exception.InvalidCredentialsException;
 import de.bht.studybridge.service.AuthService;
+import de.bht.studybridge.service.EmailVerificationService;
 import de.bht.studybridge.service.UserService;
 import jakarta.validation.Valid;
 import java.nio.charset.StandardCharsets;
@@ -14,6 +16,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -25,10 +28,15 @@ public class AuthController {
 
     private final UserService userService;
     private final AuthService authService;
+    private final EmailVerificationService emailVerificationService;
 
-    public AuthController(UserService userService, AuthService authService) {
+    public AuthController(
+            UserService userService,
+            AuthService authService,
+            EmailVerificationService emailVerificationService) {
         this.userService = userService;
         this.authService = authService;
+        this.emailVerificationService = emailVerificationService;
     }
 
     @PostMapping("/register")
@@ -42,6 +50,19 @@ public class AuthController {
             @RequestHeader(value = HttpHeaders.AUTHORIZATION, required = false) String authorizationHeader) {
         BasicCredentials credentials = parseBasicAuth(authorizationHeader);
         return authService.loginWithBasicCredentials(credentials.email(), credentials.password());
+    }
+
+    @GetMapping("/verify-email")
+    public ResponseEntity<Void> verifyEmail(@RequestParam String token) {
+        emailVerificationService.verifyEmail(token);
+        return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/resend-verification")
+    public ResponseEntity<Void> resendVerification(
+            @Valid @RequestBody EmailVerificationResendRequest request) {
+        emailVerificationService.resendVerificationEmail(request.getEmail());
+        return ResponseEntity.noContent().build();
     }
 
     private static BasicCredentials parseBasicAuth(String authorizationHeader) {

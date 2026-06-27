@@ -2,6 +2,7 @@ package de.bht.studybridge.service;
 
 import de.bht.studybridge.dto.LoginResponse;
 import de.bht.studybridge.dto.UserResponse;
+import de.bht.studybridge.exception.EmailNotVerifiedException;
 import de.bht.studybridge.exception.InvalidCredentialsException;
 import de.bht.studybridge.model.User;
 import org.springframework.stereotype.Service;
@@ -30,6 +31,9 @@ public class AuthService {
         if (!userService.passwordMatches(user, password)) {
             throw new InvalidCredentialsException("Invalid email or password");
         }
+        if (!user.isEmailVerified()) {
+            throw new EmailNotVerifiedException("Please verify your email address before signing in.");
+        }
         userService.promoteIfConfiguredAdmin(user);
         String token = jwtService.generateToken(user);
         UserResponse userResponse = new UserResponse(
@@ -39,6 +43,7 @@ public class AuthService {
                 user.getPreferredLanguage(),
                 user.getRole(),
                 user.isEnabled(),
+                user.isEmailVerified(),
                 user.getCreatedAt());
         LoginResponse response = new LoginResponse();
         response.setAccessToken(token);

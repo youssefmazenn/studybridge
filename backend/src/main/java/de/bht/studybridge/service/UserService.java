@@ -29,6 +29,7 @@ public class UserService {
     private final CourseRepository courseRepository;
     private final DocumentRepository documentRepository;
     private final DocumentContentRepository documentContentRepository;
+    private final EmailVerificationService emailVerificationService;
     private final PasswordEncoder passwordEncoder;
 
     @Value("${app.admin.emails:}")
@@ -39,11 +40,13 @@ public class UserService {
             CourseRepository courseRepository,
             DocumentRepository documentRepository,
             DocumentContentRepository documentContentRepository,
+            EmailVerificationService emailVerificationService,
             PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.courseRepository = courseRepository;
         this.documentRepository = documentRepository;
         this.documentContentRepository = documentContentRepository;
+        this.emailVerificationService = emailVerificationService;
         this.passwordEncoder = passwordEncoder;
     }
 
@@ -60,8 +63,10 @@ public class UserService {
         user.setPreferredLanguage(request.getPreferredLanguage().trim());
         user.setRole(isConfiguredAdminEmail(normalizedEmail) ? Role.ADMIN : Role.USER);
         user.setEnabled(true);
+        emailVerificationService.prepareNewUser(user);
         user.setCreatedAt(LocalDateTime.now());
         User saved = userRepository.save(user);
+        emailVerificationService.sendVerificationEmail(saved);
         return toResponse(saved);
     }
 
@@ -149,6 +154,7 @@ public class UserService {
                 user.getPreferredLanguage(),
                 user.getRole(),
                 user.isEnabled(),
+                user.isEmailVerified(),
                 user.getCreatedAt());
     }
 }

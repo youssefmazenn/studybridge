@@ -7,6 +7,7 @@ export type UserProfile = {
   preferredLanguage: string
   role: UserRole
   enabled: boolean
+  emailVerified: boolean
   createdAt: string | null
 }
 

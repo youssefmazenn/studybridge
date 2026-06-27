@@ -16,6 +16,12 @@ public final class PublicApiRequestMatcher {
         if ("POST".equalsIgnoreCase(method) && "/api/v1/auth/register".equals(path)) {
             return true;
         }
+        if ("GET".equalsIgnoreCase(method) && "/api/v1/auth/verify-email".equals(path)) {
+            return true;
+        }
+        if ("POST".equalsIgnoreCase(method) && "/api/v1/auth/resend-verification".equals(path)) {
+            return true;
+        }
         return "GET".equalsIgnoreCase(method) && "/api/v1/auth/login".equals(path);
     }
 }

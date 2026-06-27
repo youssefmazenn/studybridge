@@ -31,6 +31,25 @@ services:
       # Comma-separated emails that receive ADMIN role on login/registration:
       - key: ADMIN_EMAILS
         sync: false
+      - key: EMAIL_VERIFICATION_ENABLED
+        value: "false"
+      - key: FRONTEND_BASE_URL
+        sync: false
+      - key: EMAIL_VERIFICATION_FROM
+        sync: false
+      # SMTP settings used by email verification and optional reminder emails:
+      - key: MAIL_HOST
+        sync: false
+      - key: MAIL_PORT
+        sync: false
+      - key: MAIL_USERNAME
+        sync: false
+      - key: MAIL_PASSWORD
+        sync: false
+      - key: MAIL_SMTP_AUTH
+        value: "true"
+      - key: MAIL_SMTP_STARTTLS
+        value: "true"
       # Comma-separated allowed origins = your Vercel frontend URL (set after the frontend is live):
       - key: CORS_ORIGINS
         sync: false

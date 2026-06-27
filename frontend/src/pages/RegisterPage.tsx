@@ -51,13 +51,20 @@ export function RegisterPage() {
     setError('')
     setSubmitting(true)
     try {
-      await register({
+      const created = await register({
         name: name.trim(),
         email: email.trim(),
         password,
         preferredLanguage: language === 'de' ? 'German' : 'English',
       })
-      navigate('/login', { replace: true, state: { registered: true } })
+      navigate('/login', {
+        replace: true,
+        state: {
+          registered: true,
+          verificationRequired: !created.emailVerified,
+          email: created.email,
+        },
+      })
     } catch (err) {
       setError(getErrorMessage(err))
     } finally {

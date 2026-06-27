@@ -22,7 +22,7 @@ type AuthContextValue = {
     email: string
     password: string
     preferredLanguage: string
-  }) => Promise<void>
+  }) => Promise<UserProfile>
   logout: () => void
 }
 
@@ -101,7 +101,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       password: string
       preferredLanguage: string
     }) => {
-      await authApi.registerUser(input)
+      return authApi.registerUser(input)
     },
     [],
   )

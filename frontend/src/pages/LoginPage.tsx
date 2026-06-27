@@ -10,6 +10,7 @@ import {
 import { Link, useNavigate, useLocation } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { useLanguage } from '../context/LanguageContext'
+import * as authApi from '../api/authApi'
 import { getErrorMessage } from '../api/errors'
 import { ErrorAlert } from '../components/ErrorAlert'
 import { LanguageSelect } from '../components/LanguageSelect'
@@ -30,11 +31,19 @@ export function LoginPage() {
   const justRegistered = Boolean(
     (location.state as { registered?: boolean } | null)?.registered,
   )
+  const verificationRequired = Boolean(
+    (location.state as { verificationRequired?: boolean } | null)
+      ?.verificationRequired,
+  )
+  const registeredEmail =
+    (location.state as { email?: string } | null)?.email ?? ''
 
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
+  const [notice, setNotice] = useState('')
   const [submitting, setSubmitting] = useState(false)
+  const [resending, setResending] = useState(false)
   const activity = [
     [t('auth.activityTranslation'), t('auth.activityTranslationMeta')],
     [t('auth.activityReminder'), t('auth.activityReminderMeta')],
@@ -58,6 +67,25 @@ export function LoginPage() {
       setError(getErrorMessage(err))
     } finally {
       setSubmitting(false)
+    }
+  }
+
+  async function handleResendVerification() {
+    const targetEmail = (email || registeredEmail).trim()
+    if (!targetEmail) {
+      setError(t('auth.enterEmailToResend'))
+      return
+    }
+    setError('')
+    setNotice('')
+    setResending(true)
+    try {
+      await authApi.resendVerificationEmail(targetEmail)
+      setNotice(t('auth.verificationResent'))
+    } catch (err) {
+      setError(getErrorMessage(err))
+    } finally {
+      setResending(false)
     }
   }
 
@@ -166,7 +194,17 @@ export function LoginPage() {
                     className="rounded-lg border border-emerald-700/40 bg-emerald-950/40 px-4 py-3 text-sm text-emerald-300"
                     role="status"
                   >
-                    {t('auth.registrationSuccessful')}
+                    {verificationRequired
+                      ? t('auth.registrationVerificationRequired')
+                      : t('auth.registrationSuccessful')}
+                  </div>
+                ) : null}
+                {notice ? (
+                  <div
+                    className="rounded-lg border border-cyan-700/40 bg-cyan-950/40 px-4 py-3 text-sm text-cyan-200"
+                    role="status"
+                  >
+                    {notice}
                   </div>
                 ) : null}
                 <ErrorAlert message={error} />
@@ -228,6 +266,16 @@ export function LoginPage() {
                     <ArrowRight className="h-4 w-4" />
                   </button>
                 )}
+                <button
+                  type="button"
+                  onClick={() => void handleResendVerification()}
+                  disabled={resending}
+                  className="w-full text-center text-sm font-semibold text-cyan-400 transition hover:text-cyan-300 disabled:cursor-not-allowed disabled:opacity-60"
+                >
+                  {resending
+                    ? t('auth.resendingVerification')
+                    : t('auth.resendVerification')}
+                </button>
               </form>
 
               <p className="mt-8 text-center text-sm text-muted-foreground">
