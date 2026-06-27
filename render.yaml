@@ -33,9 +33,13 @@ services:
         sync: false
       - key: EMAIL_VERIFICATION_ENABLED
         value: "false"
+      - key: EMAIL_VERIFICATION_PROVIDER
+        value: smtp
       - key: FRONTEND_BASE_URL
         sync: false
       - key: EMAIL_VERIFICATION_FROM
+        sync: false
+      - key: RESEND_API_KEY
         sync: false
       # SMTP settings used by email verification and optional reminder emails:
       - key: MAIL_HOST
