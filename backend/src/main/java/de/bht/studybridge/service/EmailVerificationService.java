@@ -16,11 +16,15 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.MailException;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class EmailVerificationService {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(EmailVerificationService.class);
 
     private final JavaMailSender mailSender;
     private final UserRepository userRepository;
@@ -137,6 +141,13 @@ public class EmailVerificationService {
         try {
             mailSender.send(message);
         } catch (MailException e) {
+            LOGGER.warn(
+                    "Failed to send verification email to {} from {} using frontend URL {}: {}",
+                    user.getEmail(),
+                    fromAddress,
+                    frontendBaseUrl,
+                    e.getMessage(),
+                    e);
             throw new EmailDeliveryException("Could not send verification email", e);
         }
     }
