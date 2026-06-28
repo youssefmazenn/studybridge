@@ -32,9 +32,9 @@ services:
       - key: ADMIN_EMAILS
         sync: false
       - key: EMAIL_VERIFICATION_ENABLED
-        value: "false"
+        value: "true"
       - key: EMAIL_VERIFICATION_PROVIDER
-        value: smtp
+        value: resend
       - key: FRONTEND_BASE_URL
         sync: false
       - key: EMAIL_VERIFICATION_FROM
@@ -43,7 +43,7 @@ services:
         sync: false
       # Email reminders inherit EMAIL_VERIFICATION_PROVIDER and RESEND_API_KEY unless overridden:
       - key: REMINDER_EMAIL_ENABLED
-        value: "false"
+        value: "true"
       # SMTP settings used when an email feature uses the smtp provider:
       - key: MAIL_HOST
         sync: false
